@@ -2,7 +2,7 @@
 
 Tugas Analisis Algoritma Komputasi (Algoritma No. 15) — Sandi Mukti Lahambu, D082261025, Magister Teknik Informatika, Universitas Hasanuddin.
 
-Situs: https://sandimukti.github.io/mcm-analisis/
+Situs: https://sandimukti.github.io/matrix-chain-multiplication/
 
 ## Isi repositori
 
