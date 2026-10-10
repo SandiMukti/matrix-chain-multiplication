@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Program Inti MCM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/algoritma.js"></script>
+<script src="assets/mcm.js"></script>
+<style>
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr)}}
+.codebox{position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);background:var(--code-bg);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+@media (max-width:980px){.codebox{position:static}}
+.codebar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.08);color:#AFC0DA;font-family:var(--font-mono);font-size:.8rem;flex-wrap:wrap}
+.codebar a,.codebar button{color:#D9E4F5;background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:6px;padding:4px 9px;font:inherit;cursor:pointer;text-decoration:none}
+.codescroll{max-height:72vh;overflow:auto}
+@media (max-width:980px){.codescroll{max-height:none}}
+.code{font-family:var(--font-mono);font-size:.82rem;line-height:1.65;color:var(--code-ink);padding:10px 0;min-width:max-content}
+.ln{display:grid;grid-template-columns:44px 1fr;padding-right:16px;transition:background .2s}
+.ln .no{color:#5E6E8A;text-align:right;padding-right:14px;user-select:none}
+.ln .tx{white-space:pre}
+.ln.hl{background:rgba(120,169,240,.16);box-shadow:inset 3px 0 0 #78A9F0}
+.ln.dim{opacity:.38}
+.kw{color:#8FB3E8}.st{color:#B8D99A}.cm{color:#7E8BA3;font-style:italic}.nu{color:#F0A35C}.fn{color:#F2D38A}
+.steps{display:grid;gap:12px}
+.step{all:unset;display:grid;gap:6px;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;transition:border-color .2s}
+.step:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.step[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.step .lines{font-family:var(--font-mono);font-size:.74rem;color:var(--accent);font-weight:600}
+.step h3{font-size:1.05rem}
+.step p{font-size:.94rem}
+.step code{background:var(--surface-2);padding:1px 5px;border-radius:4px}
+.group-title{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+.out{background:var(--code-bg);color:var(--code-ink);font-family:var(--font-mono);font-size:.85rem;border-radius:var(--radius);padding:16px 18px;white-space:pre-wrap;line-height:1.6;min-height:6em}
+.out .ok{color:#7FD3A1}
+</style>
+</head>
+<body data-page="program">
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Program inti</p>
+    <h1>Algoritma utama, baris demi baris</h1>
+    <p class="lead">Inti algoritma ada di berkas tersendiri: <code>tugas.py</code> untuk Python, dan <code>assets/algoritma.js</code> sebagai terjemahan JavaScript yang dipakai seluruh situs. Program pengujiannya ada di <code>eksperiment.py</code>, yang memanggil fungsi dari tugas.py. Klik penjelasan di sebelah kanan untuk menyorot baris kodenya.</p>
+    <!-- <div class="row"><a class="btn" href="program/tugas.py" download>Unduh tugas.py</a><a class="btn" href="assets/algoritma.js" download>Unduh algoritma.js</a><a class="btn" href="program/eksperiment.py" download>Unduh eksperiment.py</a></div> -->
+  </header>
+
+  <div class="tabs" role="group" aria-label="Pilih bahasa">
+    <button class="btn" id="tPy" aria-pressed="true">Python · tugas.py</button>
+    <!-- <button class="btn" id="tJs" aria-pressed="false">JavaScript · algoritma.js</button> -->
+    <button class="btn" id="tEks" aria-pressed="false">Python · eksperiment.py</button>
+  </div>
+
+  <div class="layout" style="margin-top:16px">
+    <div class="codebox">
+      <div class="codebar"><span id="fname">tugas.py</span><span><button id="showAll">Tampilkan semua</button> <button id="copy">Salin kode</button></span></div>
+      <div class="codescroll" id="scroll"><div class="code" id="code"></div></div>
+    </div>
+    <div class="steps" id="steps"></div>
+  </div>
+
+  <section class="block stack" style="gap:16px">
+    <h2>Jalankan program inti</h2>
+    <p class="lead">Fungsi yang sama dijalankan di peramban. Keluarannya memakai format yang sama dengan <code>python tugas.py</code>, ditambah banyaknya evaluasi q yang selalu (n³ − n)/6.</p>
+    <div class="panel stack">
+      <div class="row" style="align-items:end">
+        <label class="field"><span class="label">Vektor dimensi p</span><input type="text" id="pin" value="30, 35, 15, 5, 10, 20, 25" spellcheck="false"></label>
+        <button class="btn primary" id="runBtn">Jalankan</button>
+      </div>
+      <div class="err" id="err" role="alert"></div>
+      <div class="out" id="out" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="block stack" style="gap:16px">
+    <h2>Dari tiga loop ke (n³ − n)/6</h2>
+    <p class="lead">Untuk setiap panjang l ada (n − l + 1) posisi awal i, dan setiap i mencoba (l − 1) titik belah k. Tabel ini menjumlahkannya untuk rantai di atas.</p>
+    <div class="panel tbl-wrap"><table class="data" id="loopTbl"></table></div>
+  </section>
+  <section class="block stack" style="gap:16px">
+    <h2>Menjalankan eksperiment.py</h2>
+    <p class="lead">Simpan <code>eksperiment.py</code> satu folder dengan <code>tugas.py</code>, lalu jalankan dari terminal. Hasil lengkap ditampilkan di halaman Studi Kasus dan Perbandingan.</p>
+    <div class="grid-3">
+      <div class="panel stack" style="gap:8px;align-content:start"><span class="label">Perintah</span><div class="out">python eksperiment.py
+python eksperiment.py --cepat</div><p class="muted">Mode lengkap butuh beberapa menit; <code>--cepat</code> memperkecil ukuran untuk mencoba.</p></div>
+      <div class="panel stack" style="gap:8px;align-content:start"><span class="label">Keluaran di folder hasil/</span><p><code>eksp1_waktu_dp</code> · waktu DP vs n<br><code>eksp2_dp_vs_bruteforce</code> · DP vs brute force<br><code>eksp3_studi_kasus</code> · tiga studi kasus NumPy</p><p class="muted">Masing-masing berupa grafik .png dan tabel .csv.</p></div>
+      <div class="panel stack" style="gap:8px;align-content:start"><span class="label">Yang dibuktikan</span><p>Kemiringan log-log ≈ 3 (Θ(n³)), hasil DP = brute force pada semua n kecil, dan urutan optimal DP sama dengan pilihan <code>numpy.multi_dot</code>.</p></div>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+  const { $, fmt } = MCM;
+  const A = window.MCMAlgo;
+  const SRC = { py: "\"\"\"\nMatrix Chain Multiplication (MCM) - Dynamic Programming bottom-up\nReferensi pseudocode: Cormen dkk., Introduction to Algorithms (CLRS), Bab 15.\n\nInput  : p = list dimensi, panjang n+1. Matriks A_i berukuran p[i-1] x p[i].\nOutput : m[i][j] = biaya minimum (jumlah perkalian skalar) untuk A_i..A_j\n         s[i][j] = titik belah k optimal untuk A_i..A_j\nKompleksitas: waktu Theta(n^3), ruang Theta(n^2)\n\"\"\"\n\nimport math\n\n\ndef matrix_chain_order(p):\n    \"\"\"Mengisi tabel m dan s secara bottom-up (berdasarkan panjang rantai).\"\"\"\n    n = len(p) - 1  # banyaknya matriks\n\n    # Tabel berukuran (n+1) x (n+1) agar indeks 1..n sama dengan pseudocode;\n    # baris/kolom 0 tidak dipakai.\n    m = [[0] * (n + 1) for _ in range(n + 1)]\n    s = [[0] * (n + 1) for _ in range(n + 1)]\n\n    # Kasus dasar: m[i][i] = 0 (satu matriks tidak butuh perkalian).\n    # Sudah terpenuhi karena tabel diinisialisasi dengan 0.\n\n    # l = panjang rantai yang sedang dihitung, dari 2 sampai n\n    for l in range(2, n + 1):\n        # i = indeks awal rantai; rantai A_i..A_j dengan j = i + l - 1\n        for i in range(1, n - l + 2):\n            j = i + l - 1\n            m[i][j] = math.inf  # nilai awal: belum ada solusi\n            # k = posisi belah: (A_i..A_k)(A_{k+1}..A_j)\n            for k in range(i, j):\n                # biaya = biaya kiri + biaya kanan + biaya mengalikan dua hasilnya\n                # hasil kiri berukuran p[i-1] x p[k], hasil kanan p[k] x p[j]\n                q = m[i][k] + m[k + 1][j] + p[i - 1] * p[k] * p[j]\n                if q < m[i][j]:   # simpan jika lebih murah\n                    m[i][j] = q\n                    s[i][j] = k\n    return m, s\n\n\ndef print_parens(s, i, j):\n    \"\"\"Merekonstruksi pengurungan optimal dari tabel s (rekursif).\"\"\"\n    if i == j:\n        return f\"A{i}\"\n    k = s[i][j]\n    return \"(\" + print_parens(s, i, k) + print_parens(s, k + 1, j) + \")\"\n\n\ndef brute_force(p, i, j):\n    \"\"\"Rekursi tanpa memoization: mencoba semua pengurungan (eksponensial).\n    Dipakai sebagai pembanding dan untuk memverifikasi hasil DP pada n kecil.\"\"\"\n    if i == j:\n        return 0\n    best = math.inf\n    for k in range(i, j):\n        q = brute_force(p, i, k) + brute_force(p, k + 1, j) + p[i - 1] * p[k] * p[j]\n        best = min(best, q)\n    return best\n\n\n# ---------------------------------------------------------------------------\n# Kasus uji kecil yang bisa dicek manual (syarat minimal 3 kasus)\n# ---------------------------------------------------------------------------\nif __name__ == \"__main__\":\n    kasus_uji = [\n        # (nama, p, biaya yang diharapkan)\n        (\"Dua matriks 10x20, 20x30\",          [10, 20, 30],                  6000),\n        (\"Tiga matriks 10x100, 100x5, 5x50\",  [10, 100, 5, 50],              7500),\n        (\"Contoh CLRS, enam matriks\",         [30, 35, 15, 5, 10, 20, 25],   15125),\n        (\"Satu matriks (kasus tepi)\",         [5, 10],                       0),\n    ]\n\n    for nama, p, harapan in kasus_uji:\n        n = len(p) - 1\n        m, s = matrix_chain_order(p)\n        biaya = m[1][n]\n        bf = brute_force(p, 1, n)\n        status = \"OK\" if biaya == harapan == bf else \"SALAH\"\n        print(f\"[{status}] {nama}\")\n        print(f\"    p = {p}\")\n        print(f\"    biaya DP = {biaya}, brute force = {bf}, harapan = {harapan}\")\n        print(f\"    pengurungan optimal: {print_parens(s, 1, n)}\\n\")\n", js: "/*\n * algoritma.js — Algoritma utama Matrix Chain Multiplication (versi JavaScript)\n * Terjemahan langsung dari tugas.py; nama fungsi dan urutan baris dibuat sama\n * agar mudah dibandingkan. Berkas ini murni algoritma: tanpa tampilan.\n *\n * Input  : p = vektor dimensi, panjang n+1. Matriks A_i berukuran p[i-1] x p[i].\n * Output : m[i][j] = biaya minimum A_i..A_j,  s[i][j] = titik belah optimal.\n * Kompleksitas: waktu Θ(n³) = (n³ − n)/6 evaluasi, ruang Θ(n²).\n */\n(function (global) {\n  \"use strict\";\n\n  /* ---------- 1. Inti: DP bottom-up (sama dengan matrix_chain_order di tugas.py) ---------- */\n  function matrixChainOrder(p) {\n    const n = p.length - 1;                                   // banyaknya matriks\n    // tabel (n+1) x (n+1) agar indeks 1..n sama dengan pseudocode; baris/kolom 0 tak dipakai\n    const m = Array.from({ length: n + 1 }, () => Array(n + 1).fill(0));\n    const s = Array.from({ length: n + 1 }, () => Array(n + 1).fill(0));\n    let evals = 0;                                            // penghitung evaluasi q (untuk analisis)\n    // kasus dasar m[i][i] = 0 sudah terpenuhi karena tabel diisi 0\n    for (let l = 2; l <= n; l++) {                            // l = panjang subrantai\n      for (let i = 1; i <= n - l + 1; i++) {                  // i = indeks awal\n        const j = i + l - 1;                                  // j = indeks akhir\n        m[i][j] = Infinity;                                   // belum ada solusi\n        for (let k = i; k < j; k++) {                         // k = titik belah\n          evals++;\n          const q = m[i][k] + m[k + 1][j] + p[i - 1] * p[k] * p[j];   // kiri + kanan + gabung\n          if (q < m[i][j]) {                                  // simpan jika lebih murah\n            m[i][j] = q;\n            s[i][j] = k;\n          }\n        }\n      }\n    }\n    return { cost: n ? m[1][n] : 0, m, s, evals };\n  }\n\n  /* ---------- 2. Rekonstruksi pengurungan (sama dengan print_parens) ---------- */\n  function printParens(s, i, j) {\n    if (i === j) return `A${i}`;\n    const k = s[i][j];\n    return \"(\" + printParens(s, i, k) + printParens(s, k + 1, j) + \")\";\n  }\n\n  /* ---------- 3. Pembanding: brute force tanpa memoisasi (sama dengan brute_force) ---------- */\n  function bruteForce(p) {\n    const n = p.length - 1;\n    let calls = 0;\n    function go(i, j) {\n      calls++;\n      if (i === j) return 0;\n      let best = Infinity;\n      for (let k = i; k < j; k++) {\n        const q = go(i, k) + go(k + 1, j) + p[i - 1] * p[k] * p[j];\n        if (q < best) best = q;\n      }\n      return best;\n    }\n    return { cost: go(1, n), evals: calls };\n  }\n\n  /* ---------- 4. Pembanding tambahan ---------- */\n  function memoized(p) {                                      // DP top-down dengan memoisasi\n    const n = p.length - 1, memo = new Map();\n    const s = Array.from({ length: n + 1 }, () => Array(n + 1).fill(0));\n    let calls = 0;\n    function go(i, j) {\n      calls++;\n      if (i === j) return 0;\n      const key = i * 1000 + j;\n      if (memo.has(key)) return memo.get(key);\n      let best = Infinity;\n      for (let k = i; k < j; k++) {\n        const q = go(i, k) + go(k + 1, j) + p[i - 1] * p[k] * p[j];\n        if (q < best) { best = q; s[i][j] = k; }\n      }\n      memo.set(key, best);\n      return best;\n    }\n    return { cost: go(1, n), s, evals: calls };\n  }\n  function greedy(p) {                                        // heuristik: pasangan bertetangga termurah dulu\n    const items = p.slice(0, -1).map((_, i) => ({ r: p[i], c: p[i + 1], name: `A${i + 1}` }));\n    let cost = 0, evals = 0;\n    while (items.length > 1) {\n      let bi = 0, bc = Infinity;\n      for (let i = 0; i < items.length - 1; i++) {\n        evals++;\n        const c = items[i].r * items[i].c * items[i + 1].c;\n        if (c < bc) { bc = c; bi = i; }\n      }\n      cost += bc;\n      const a = items[bi], b = items[bi + 1];\n      items.splice(bi, 2, { r: a.r, c: b.c, name: `(${a.name}${b.name})` });\n    }\n    return { cost, paren: items[0].name, evals };\n  }\n\n  /* ---------- 5. Urutan naif dan biaya sebuah pengurungan ---------- */\n  const splitLR = () => (i, j) => j - 1;                      // (((A1A2)A3)...An)\n  const splitRL = () => (i, j) => i;                          // A1(A2(...(An-1An)))\n  function costBySplit(p, split, i, j) {\n    if (i === j) return 0;\n    const k = split(i, j);\n    return costBySplit(p, split, i, k) + costBySplit(p, split, k + 1, j) + p[i - 1] * p[k] * p[j];\n  }\n  function parensBySplit(split, i, j) {\n    if (i === j) return `A${i}`;\n    const k = split(i, j);\n    return `(${parensBySplit(split, i, k)}${parensBySplit(split, k + 1, j)})`;\n  }\n\n  global.MCMAlgo = { matrixChainOrder, printParens, bruteForce, memoized, greedy, splitLR, splitRL, costBySplit, parensBySplit };\n})(window);\n", eks: "\"\"\"\neksperiment.py - Eksperimen untuk Bab 4 (Matrix Chain Multiplication)\n\nMemanggil fungsi dari tugas.py:\n    matrix_chain_order(p) -> (m, s)\n    print_parens(s, i, j) -> string pengurungan\n    brute_force(p, i, j)  -> biaya minimum (rekursi eksponensial)\n\nMenghasilkan (di folder hasil/):\n    1. eksp1_waktu_dp.png / .csv          : waktu DP vs n, dibandingkan kurva c*n^3\n    2. eksp2_dp_vs_bruteforce.png / .csv  : DP vs brute force untuk n kecil\n    3. eksp3_studi_kasus.png / .csv       : perkalian matriks nyata (NumPy),\n                                            urutan naif vs urutan optimal\n\nCara menjalankan:\n    python eksperiment.py          # eksperimen lengkap (beberapa menit)\n    python eksperiment.py --cepat  # versi singkat untuk mencoba\n\nPustaka: numpy (alat ukur perkalian matriks nyata), matplotlib (grafik).\nKeduanya bukan inti algoritma; inti algoritma ada di tugas.py.\n\"\"\"\n\nimport csv\nimport math\nimport os\nimport statistics\nimport sys\nimport textwrap\nimport time\n\n# Pasang numpy & matplotlib otomatis jika belum ada, ke Python yang sedang\n# menjalankan skrip ini (menghindari masalah beda interpreter di VS Code).\ntry:\n    import matplotlib, numpy  # noqa: F401\nexcept ModuleNotFoundError:\n    import subprocess\n    print(\"Memasang numpy dan matplotlib ke:\", sys.executable)\n    subprocess.check_call([sys.executable, \"-m\", \"pip\", \"install\", \"numpy\", \"matplotlib\"])\n\nimport matplotlib\nmatplotlib.use(\"Agg\")  # simpan grafik ke file tanpa membuka jendela\nimport matplotlib.pyplot as plt\nimport numpy as np\n\nfrom tugas import matrix_chain_order, print_parens, brute_force\n\n# ---------------------------------------------------------------------------\n# Pengaturan eksperimen\n# ---------------------------------------------------------------------------\nCEPAT = \"--cepat\" in sys.argv\nSEED = 42                 # seed tetap agar hasil bisa diulang\nULANGAN = 5               # pengulangan tiap percobaan (syarat >= 5)\nUKURAN_DP = [25, 50, 100, 200] if CEPAT else [50, 100, 200, 400, 800]\nUKURAN_BF = list(range(2, 12)) if CEPAT else list(range(2, 16))\nDIM_MIN, DIM_MAX = 10, 100\nULANGAN_NUMPY = 20        # eksperimen 3: lebih banyak ulangan karena waktu NumPy berisik\nPEMANASAN_NUMPY = 3       # run awal yang dibuang  # rentang dimensi acak untuk eksperimen 1 & 2\n\nFOLDER = \"hasil\"\nos.makedirs(FOLDER, exist_ok=True)\n\n\ndef acak_dimensi(n, rng):\n    \"\"\"Membuat vektor dimensi p (panjang n+1) secara acak.\"\"\"\n    return [int(x) for x in rng.integers(DIM_MIN, DIM_MAX + 1, size=n + 1)]\n\n\ndef ukur(fungsi, ulangan=ULANGAN, pemanasan=0, median=False):\n    \"\"\"Menjalankan fungsi beberapa kali; mengembalikan (rata-rata, simpangan baku) detik.\n    pemanasan: jumlah run awal yang tidak diukur (menghindari efek cache/thread BLAS).\n    median=True: juga mengembalikan median (tahan terhadap lonjakan sesekali).\"\"\"\n    for _ in range(pemanasan):\n        fungsi()\n    waktu = []\n    for _ in range(ulangan):\n        t0 = time.perf_counter()\n        fungsi()\n        waktu.append(time.perf_counter() - t0)\n    sd = statistics.stdev(waktu) if len(waktu) > 1 else 0.0\n    if median:\n        return statistics.mean(waktu), sd, statistics.median(waktu)\n    return statistics.mean(waktu), sd\n\n\ndef simpan_csv(nama, header, baris):\n    with open(os.path.join(FOLDER, nama), \"w\", newline=\"\", encoding=\"utf-8\") as f:\n        w = csv.writer(f)\n        w.writerow(header)\n        w.writerows(baris)\n\n\ndef catalan(k):\n    \"\"\"Bilangan Catalan C_k; banyak pengurungan n matriks = C_{n-1}.\"\"\"\n    return math.comb(2 * k, k) // (k + 1)\n\n\n# ===========================================================================\n# EKSPERIMEN 1: waktu DP terhadap n, dibandingkan kurva teoretis c * n^3\n# ===========================================================================\ndef eksperimen_1():\n    print(\"=\" * 70)\n    print(\"EKSPERIMEN 1: Waktu DP vs ukuran input n\")\n    print(\"=\" * 70)\n    rng = np.random.default_rng(SEED)\n    baris, ns, rata, sd = [], [], [], []\n\n    for n in UKURAN_DP:\n        p = acak_dimensi(n, rng)\n        mean, std = ukur(lambda: matrix_chain_order(p))\n        iterasi = (n ** 3 - n) // 6  # banyak evaluasi q, hasil penurunan formal\n        ns.append(n); rata.append(mean); sd.append(std)\n        baris.append([n, iterasi, f\"{mean:.6f}\", f\"{std:.6f}\", f\"{mean / n**3 * 1e9:.3f}\"])\n        print(f\"n = {n:4d} | iterasi (n^3-n)/6 = {iterasi:>12,} | \"\n              f\"waktu = {mean:9.4f} s +/- {std:.4f} | t/n^3 = {mean / n**3 * 1e9:.2f} ns\")\n\n    simpan_csv(\"eksp1_waktu_dp.csv\",\n               [\"n\", \"iterasi_(n^3-n)/6\", \"rata2_detik\", \"simpangan_baku\", \"t/n^3_(ns)\"], baris)\n\n    # Konstanta c untuk kurva c*n^3, dicari dengan kuadrat terkecil\n    n_arr, t_arr = np.array(ns, float), np.array(rata)\n    c = np.sum(t_arr * n_arr ** 3) / np.sum(n_arr ** 6)\n    n_halus = np.linspace(min(ns), max(ns), 200)\n\n    # Kemiringan log-log: untuk Theta(n^3) mendekati 3\n    slope = np.polyfit(np.log(n_arr), np.log(t_arr), 1)[0]\n    print(f\"\\nKemiringan log-log = {slope:.3f} (teori: 3)\")\n\n    fig, ax = plt.subplots(1, 2, figsize=(12, 4.5))\n    ax[0].errorbar(ns, rata, yerr=sd, fmt=\"o\", capsize=4, label=\"Pengukuran (rata-rata ± SD)\")\n    ax[0].plot(n_halus, c * n_halus ** 3, \"--\", label=f\"Teoretis c·n³ (c = {c:.2e})\")\n    ax[0].set_xlabel(\"Banyak matriks n\"); ax[0].set_ylabel(\"Waktu (detik)\")\n    ax[0].set_title(\"Waktu DP vs kurva n³ (skala linear)\")\n    ax[0].legend(); ax[0].grid(alpha=0.3)\n\n    ax[1].loglog(ns, rata, \"o\", label=\"Pengukuran\")\n    ax[1].loglog(n_halus, c * n_halus ** 3, \"--\", label=\"c·n³\")\n    ax[1].set_xlabel(\"n (log)\"); ax[1].set_ylabel(\"Waktu (log)\")\n    ax[1].set_title(f\"Skala log-log, kemiringan = {slope:.2f} (teori 3)\")\n    ax[1].legend(); ax[1].grid(alpha=0.3, which=\"both\")\n\n    fig.tight_layout()\n    fig.savefig(os.path.join(FOLDER, \"eksp1_waktu_dp.png\"), dpi=150)\n    plt.close(fig)\n\n\n# ===========================================================================\n# EKSPERIMEN 2: DP vs brute force untuk n kecil\n# ===========================================================================\ndef eksperimen_2():\n    print(\"\\n\" + \"=\" * 70)\n    print(\"EKSPERIMEN 2: DP vs brute force (n kecil)\")\n    print(\"=\" * 70)\n    rng = np.random.default_rng(SEED)\n    baris, ns, t_dp, t_bf = [], [], [], []\n\n    for n in UKURAN_BF:\n        p = acak_dimensi(n, rng)\n        m, s = matrix_chain_order(p)\n        biaya_bf = brute_force(p, 1, n)\n        assert m[1][n] == biaya_bf, \"Hasil DP berbeda dengan brute force!\"\n\n        mean_dp, sd_dp = ukur(lambda: matrix_chain_order(p))\n        mean_bf, sd_bf = ukur(lambda: brute_force(p, 1, n))\n        ns.append(n); t_dp.append(mean_dp); t_bf.append(mean_bf)\n        baris.append([n, catalan(n - 1), m[1][n], \"sama\",\n                      f\"{mean_dp:.6f}\", f\"{sd_dp:.6f}\", f\"{mean_bf:.6f}\", f\"{sd_bf:.6f}\"])\n        print(f\"n = {n:2d} | pengurungan C(n-1) = {catalan(n - 1):>10,} | \"\n              f\"DP = {mean_dp * 1e3:8.3f} ms | brute force = {mean_bf * 1e3:11.3f} ms\")\n\n    simpan_csv(\"eksp2_dp_vs_bruteforce.csv\",\n               [\"n\", \"banyak_pengurungan_Catalan\", \"biaya_optimal\", \"DP_vs_BF\",\n                \"DP_rata2_detik\", \"DP_SD\", \"BF_rata2_detik\", \"BF_SD\"], baris)\n\n    fig, ax = plt.subplots(figsize=(7, 4.5))\n    ax.semilogy(ns, t_dp, \"o-\", label=\"DP bottom-up Θ(n³)\")\n    ax.semilogy(ns, t_bf, \"s-\", label=\"Brute force (eksponensial)\")\n    ax.set_xlabel(\"Banyak matriks n\"); ax.set_ylabel(\"Waktu (detik, skala log)\")\n    ax.set_title(\"DP vs brute force\")\n    ax.legend(); ax.grid(alpha=0.3, which=\"both\")\n    fig.tight_layout()\n    fig.savefig(os.path.join(FOLDER, \"eksp2_dp_vs_bruteforce.png\"), dpi=150)\n    plt.close(fig)\n\n\n# ===========================================================================\n# EKSPERIMEN 3: studi kasus perkalian matriks nyata dengan NumPy\n# ===========================================================================\ndef split_kiri_ke_kanan(n):\n    \"\"\"Tabel s untuk urutan naif kiri-ke-kanan: (((A1A2)A3)...An).\"\"\"\n    s = [[0] * (n + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        for j in range(i + 1, n + 1):\n            s[i][j] = j - 1\n    return s\n\n\ndef split_kanan_ke_kiri(n):\n    \"\"\"Tabel s untuk urutan naif kanan-ke-kiri: A1(A2(...(An-1An))).\"\"\"\n    s = [[0] * (n + 1) for _ in range(n + 1)]\n    for i in range(1, n + 1):\n        for j in range(i + 1, n + 1):\n            s[i][j] = i\n    return s\n\n\ndef biaya_urutan(p, s, i, j):\n    \"\"\"Jumlah perkalian skalar untuk pengurungan yang dinyatakan tabel s.\"\"\"\n    if i == j:\n        return 0\n    k = s[i][j]\n    return biaya_urutan(p, s, i, k) + biaya_urutan(p, s, k + 1, j) + p[i - 1] * p[k] * p[j]\n\n\ndef kalikan(mats, s, i, j):\n    \"\"\"Mengalikan matriks sungguhan mengikuti pengurungan pada tabel s.\"\"\"\n    if i == j:\n        return mats[i - 1]\n    k = s[i][j]\n    return kalikan(mats, s, i, k) @ kalikan(mats, s, k + 1, j)\n\n\n# Skenario studi kasus (p = vektor dimensi, A_i berukuran p[i-1] x p[i])\nSKENARIO = [\n    (\"MLP linear 784-512-256-128-10, batch 1024\",\n     # W4 (10x128) W3 (128x256) W2 (256x512) W1 (512x784) X (784x1024)\n     [10, 128, 256, 512, 784, 1024]),\n    (\"Rantai Jacobian x vektor (forward-mode)\",\n     # J1 (1500x1500) J2 (1500x1500) J3 (1500x1500) v (1500x1)\n     [1500, 1500, 1500, 1500, 1]),\n    (\"Rantai heterogen 8 matriks\",\n     # dimensi bervariasi; urutan optimal berbeda dari kedua urutan naif\n     [766, 257, 1284, 20, 362, 340, 823, 564, 251]),\n]\n\n\ndef urutan_numpy(mats):\n    \"\"\"Tabel s (indeks 1..n) dari urutan yang dipilih numpy.linalg.multi_dot.\n    multi_dot memakai DP matrix chain secara internal untuk >= 3 matriks; fungsi\n    pembantunya bersifat privat, jadi lokasinya dicoba di dua tempat (NumPy 2.x dan 1.x).\n    Mengembalikan None jika fungsi itu tidak tersedia.\"\"\"\n    try:\n        from numpy.linalg._linalg import _multi_dot_matrix_chain_order as f\n    except ImportError:\n        try:\n            from numpy.linalg.linalg import _multi_dot_matrix_chain_order as f\n        except ImportError:\n            return None\n    s0 = f(mats)                      # indeks 0..n-1\n    n = len(mats)\n    s = [[0] * (n + 1) for _ in range(n + 1)]\n    for i in range(n):\n        for j in range(i + 1, n):\n            s[i + 1][j + 1] = int(s0[i][j]) + 1\n    return s\n\n\ndef eksperimen_3():\n    print(\"\\n\" + \"=\" * 70)\n    print(\"EKSPERIMEN 3: Studi kasus perkalian matriks nyata (NumPy)\")\n    print(\"=\" * 70)\n    rng = np.random.default_rng(SEED)\n    baris, label_grafik, data_grafik = [], [], []\n\n    for nama, p in SKENARIO:\n        if p is None:\n            p = [int(x) for x in rng.integers(20, 1500, size=9)]\n        n = len(p) - 1\n        if CEPAT:  # perkecil dimensi agar cepat\n            p = [max(1, d // 4) for d in p]\n\n        mats = [rng.standard_normal((p[i], p[i + 1])) for i in range(n)]\n        _, s_opt = matrix_chain_order(p)\n        urutan = {\n            \"Kiri-ke-kanan\": split_kiri_ke_kanan(n),\n            \"Kanan-ke-kiri\": split_kanan_ke_kiri(n),\n            \"Optimal (DP)\": s_opt,\n        }\n        # Pembanding pustaka: numpy.linalg.multi_dot (memilih urutan sendiri)\n        s_np = urutan_numpy(mats)\n        urutan[\"NumPy multi_dot\"] = s_np\n\n        print(f\"\\n{nama}\\n  p = {p}\")\n        acuan = kalikan(mats, s_opt, 1, n)\n        hasil_skenario = {}\n        for label, s in urutan.items():\n            if label == \"NumPy multi_dot\":\n                fungsi = lambda: np.linalg.multi_dot(mats)\n            else:\n                fungsi = lambda s=s: kalikan(mats, s, 1, n)\n            flop = biaya_urutan(p, s, 1, n) if s is not None else float(\"nan\")\n            hasil = fungsi()\n            sama = np.allclose(hasil, acuan, rtol=1e-6, atol=1e-6)\n            mean, std, med = ukur(fungsi, ulangan=ULANGAN_NUMPY,\n                                  pemanasan=PEMANASAN_NUMPY, median=True)\n            hasil_skenario[label] = (flop, med, mean, std)\n            par = print_parens(s, 1, n) if s is not None else \"(tidak diketahui)\"\n            print(f\"  {label:15s} {par:28s} perkalian = {flop:>15,.0f} | \"\n                  f\"median = {med * 1e3:8.2f} ms | rata2 = {mean * 1e3:8.2f} +/- {std * 1e3:.2f} | \"\n                  f\"hasil sama: {sama}\")\n\n        f_opt, t_opt = hasil_skenario[\"Optimal (DP)\"][0], hasil_skenario[\"Optimal (DP)\"][1]\n        if s_np is not None:\n            setuju = biaya_urutan(p, s_np, 1, n) == f_opt\n            print(f\"  -> Biaya urutan NumPy {'SAMA' if setuju else 'BERBEDA'} dengan optimal DP.\")\n        for label, (flop, med, mean, std) in hasil_skenario.items():\n            par = print_parens(urutan[label], 1, n) if urutan[label] is not None else \"-\"\n            baris.append([nama, label, par, flop,\n                          f\"{flop / f_opt:.2f}\", f\"{med:.6f}\", f\"{mean:.6f}\", f\"{std:.6f}\",\n                          f\"{med / t_opt:.2f}\"])\n        label_grafik.append(nama)\n        data_grafik.append(hasil_skenario)\n\n    simpan_csv(\"eksp3_studi_kasus.csv\",\n               [\"skenario\", \"urutan\", \"pengurungan\", \"perkalian_skalar\",\n                \"rasio_perkalian_vs_optimal\", \"median_detik\", \"rata2_detik\", \"SD\",\n                \"rasio_median_vs_optimal\"], baris)\n\n    # Grafik: perkalian skalar (teori) dan waktu nyata, per skenario\n    fig, ax = plt.subplots(1, 2, figsize=(13, 4.8))\n    labels_urutan = [\"Kiri-ke-kanan\", \"Kanan-ke-kiri\", \"Optimal (DP)\", \"NumPy multi_dot\"]\n    x = np.arange(len(label_grafik)); lebar = 0.2\n    for idx, lu in enumerate(labels_urutan):\n        flops = [d[lu][0] for d in data_grafik]\n        waktu = [d[lu][1] for d in data_grafik]\n        geser = (idx - 1.5) * lebar\n        ax[0].bar(x + geser, flops, lebar, label=lu)\n        ax[1].bar(x + geser, waktu, lebar, label=lu)\n    for a, judul, ylabel in [(ax[0], \"Jumlah perkalian skalar (teori)\", \"Perkalian skalar (log)\"),\n                             (ax[1], f\"Waktu NumPy, median {ULANGAN_NUMPY} ulangan\", \"Waktu detik (log)\")]:\n        a.set_yscale(\"log\"); a.set_title(judul); a.set_ylabel(ylabel)\n        a.set_xticks(x); a.set_xticklabels([textwrap.fill(l, 20) for l in label_grafik], fontsize=8)\n        a.legend(fontsize=8); a.grid(alpha=0.3, axis=\"y\", which=\"both\")\n    fig.tight_layout()\n    fig.savefig(os.path.join(FOLDER, \"eksp3_studi_kasus.png\"), dpi=150)\n    plt.close(fig)\n\n\nif __name__ == \"__main__\":\n    print(f\"Mode: {'CEPAT' if CEPAT else 'LENGKAP'} | seed = {SEED} | ulangan = {ULANGAN}\\n\")\n    eksperimen_1()\n    eksperimen_2()\n    eksperimen_3()\n    print(f\"\\nSelesai. Grafik dan tabel CSV tersimpan di folder '{FOLDER}/'.\")\n" };
+
+  /* Penjelasan per bagian; angka = nomor baris di tugas.py */
+  const PY_STEPS = [
+    { g: "Persiapan", l: [11, 11], t: "Mengimpor math", d: "Hanya untuk <code>math.inf</code>, nilai tak hingga sebagai nilai awal m[i][j] sebelum ada pengurungan yang dicoba. Inti algoritma tidak memakai pustaka lain." },
+    { g: "matrix_chain_order(p)", l: [14, 16], t: "Masukan dan banyak matriks", d: "Fungsi menerima vektor dimensi <code>p</code> dengan panjang n + 1, karena matriks A<sub>i</sub> berukuran p[i−1] × p[i]. Jadi banyak matriks n = len(p) − 1." },
+    { l: [18, 21], t: "Membuat tabel m dan s", d: "Dua tabel berukuran (n + 1) × (n + 1). <code>m[i][j]</code> menyimpan biaya minimum A<sub>i</sub>…A<sub>j</sub>, dan <code>s[i][j]</code> menyimpan titik belah terbaiknya. Baris dan kolom 0 sengaja tidak dipakai supaya indeks 1..n sama persis dengan pseudocode. Inilah sumber ruang Θ(n²)." },
+    { l: [23, 24], t: "Kasus dasar", d: "Satu matriks tidak butuh perkalian, jadi m[i][i] = 0. Karena tabel sudah diisi 0, kasus dasar ini tidak perlu ditulis sebagai kode." },
+    { l: [26, 27], t: "Loop 1: panjang subrantai l", d: "Tabel diisi dari subrantai pendek ke panjang, l = 2 sampai n. <code>range(2, n + 1)</code> berhenti di n karena batas atas range tidak ikut. Urutan inilah yang menjamin m[i][k] dan m[k+1][j] sudah tersedia saat dibutuhkan." },
+    { l: [28, 30], t: "Loop 2: posisi awal i", d: "Untuk panjang l, i berjalan dari 1 sampai n − l + 1, sehingga ditulis <code>range(1, n - l + 2)</code>. Indeks akhirnya j = i + l − 1." },
+    { l: [31, 31], t: "Nilai awal tak hingga", d: "Sebelum mencoba titik belah apa pun, biaya m[i][j] dianggap ∞ supaya pilihan pertama pasti diterima sebagai minimum sementara." },
+    { l: [32, 33], t: "Loop 3: titik belah k", d: "Rantai A<sub>i</sub>…A<sub>j</sub> dibelah menjadi (A<sub>i</sub>…A<sub>k</sub>)(A<sub>k+1</sub>…A<sub>j</sub>) untuk k = i sampai j − 1, ditulis <code>range(i, j)</code>." },
+    { l: [34, 36], t: "Rumus rekurens", d: "Biaya = biaya kiri <code>m[i][k]</code> + biaya kanan <code>m[k+1][j]</code> + biaya mengalikan dua hasilnya. Hasil kiri berukuran p[i−1] × p[k] dan hasil kanan p[k] × p[j], jadi penggabungannya butuh <code>p[i-1]·p[k]·p[j]</code> perkalian skalar. Baris ini adalah operasi dasar yang dijalankan tepat (n³ − n)/6 kali." },
+    { l: [37, 39], t: "Menyimpan yang termurah", d: "Jika q lebih kecil dari nilai sekarang, simpan biayanya di m[i][j] dan titik belahnya di s[i][j]. Setelah semua k dicoba, m[i][j] berisi biaya minimum (dibuktikan dengan lemma optimal substructure dan induksi pada l)." },
+    { l: [40, 40], t: "Hasil", d: "Biaya minimum seluruh rantai ada di <code>m[1][n]</code>, dan tabel s dipakai untuk menyusun pengurungannya." },
+    { g: "print_parens(s, i, j)", l: [43, 48], t: "Merekonstruksi pengurungan", d: "Rekursif: satu matriks dicetak A<sub>i</sub>; selain itu rantai dibelah di k = s[i][j], lalu kedua bagian dicetak di dalam kurung. Fungsi dipanggil sekali per simpul pohon pengurungan (2n − 1 simpul), jadi Θ(n)." },
+    { g: "brute_force(p, i, j)", l: [51, 60], t: "Pembanding brute force", d: "Rumusnya sama, tetapi tanpa tabel: setiap subrantai dihitung ulang setiap kali dibutuhkan. Banyak pemanggilannya R(n) = 3<sup>n−1</sup>, eksponensial. Dipakai untuk memverifikasi hasil DP pada n kecil." },
+    { g: "Pengujian", l: [63, 84], t: "Empat kasus uji", d: "Dua matriks, tiga matriks, contoh CLRS enam matriks, dan kasus tepi satu matriks. Setiap kasus membandingkan hasil DP dengan brute force dan dengan nilai harapan hitungan manual; semuanya harus berstatus OK." },
+  ];
+  const JS_STEPS = [
+    { g: "algoritma.js", l: [1, 9], t: "Berkas algoritma tersendiri", d: "Terjemahan langsung dari tugas.py yang dipakai halaman visualisasi, studi kasus, dan perbandingan. Berkas ini hanya berisi algoritma, tanpa kode tampilan." },
+    { l: [13, 36], t: "matrixChainOrder(p)", d: "Baris demi baris sama dengan versi Python: tabel (n + 1) × (n + 1), tiga loop l, i, k, rumus q, dan pembaruan minimum. Tambahannya hanya penghitung <code>evals</code> untuk membuktikan (n³ − n)/6 secara langsung." },
+    { l: [38, 43], t: "printParens(s, i, j)", d: "Rekonstruksi pengurungan dari tabel s secara rekursif, sama dengan print_parens." },
+    { l: [45, 60], t: "bruteForce(p)", d: "Rekursi tanpa memoisasi, dengan penghitung pemanggilan untuk memperlihatkan pertumbuhan 3<sup>n−1</sup>." },
+    { l: [62, 97], t: "Pembanding tambahan", d: "DP top-down dengan memoisasi (sama-sama Θ(n³), tetapi rekursif) dan heuristik greedy yang selalu mengalikan pasangan bertetangga termurah. Keduanya dipakai di halaman Perbandingan Algoritma." },
+    { l: [99, 111], t: "Urutan naif", d: "Fungsi untuk menghitung biaya dan pengurungan urutan kiri-ke-kanan dan kanan-ke-kiri, sebagai pembanding pada studi kasus." },
+  ];
+
+  const EKS_STEPS = [
+    { g: "Persiapan", l: [1, 21], t: "Keterangan berkas", d: "Docstring menjelaskan tiga eksperimen, berkas keluaran di folder <code>hasil/</code>, dan cara menjalankan: <code>python eksperiment.py</code> (lengkap) atau <code>python eksperiment.py --cepat</code> (singkat untuk mencoba)." },
+    { l: [23, 43], t: "Impor dan pemasangan otomatis", d: "Pustaka bawaan Python (csv, math, statistics, time, dll.) diimpor dulu. Jika numpy atau matplotlib belum ada, skrip memasangnya dengan <code>pip</code> ke interpreter yang sedang dipakai (<code>sys.executable</code>). <code>matplotlib.use(\"Agg\")</code> membuat grafik langsung disimpan ke file tanpa membuka jendela." },
+    { l: [45, 45], t: "Memanggil program inti", d: "Eksperimen tidak menulis ulang algoritma: <code>matrix_chain_order</code>, <code>print_parens</code>, dan <code>brute_force</code> diambil dari tugas.py, sehingga yang diuji adalah kode inti yang sama." },
+    { l: [50, 60], t: "Pengaturan eksperimen", d: "Seed 42 agar data acak bisa diulang. Setiap pengukuran diulang 5 kali (syarat ≥ 5). Ukuran DP n = 50–800, brute force n = 2–15, dimensi acak 10–100. Eksperimen 3 memakai 20 ulangan dan 3 run pemanasan karena waktu NumPy lebih berisik. Mode <code>--cepat</code> memperkecil semua ukuran." },
+    { g: "Fungsi bantu", l: [63, 65], t: "acak_dimensi(n, rng)", d: "Membuat vektor dimensi p sepanjang n + 1 berisi bilangan bulat acak antara DIM_MIN dan DIM_MAX." },
+    { l: [68, 82], t: "ukur(fungsi, …)", d: "Alat ukur waktu. Run pemanasan dijalankan tanpa dicatat, lalu fungsi dijalankan sebanyak <code>ulangan</code> kali dengan <code>time.perf_counter()</code>. Hasilnya rata-rata dan simpangan baku, ditambah median bila diminta; median tahan terhadap lonjakan sesekali." },
+    { l: [85, 94], t: "simpan_csv dan catalan", d: "<code>simpan_csv</code> menulis tabel hasil ke folder hasil/. <code>catalan(k)</code> menghitung bilangan Catalan C<sub>k</sub> = C(2k, k)/(k + 1), yaitu banyak cara mengurung n matriks bila k = n − 1." },
+    { g: "Eksperimen 1 · waktu DP vs n", l: [100, 114], t: "Mengukur DP untuk tiap n", d: "Untuk setiap n dibuat p acak, lalu <code>matrix_chain_order(p)</code> diukur 5 kali. Banyak evaluasi q dicatat sebagai (n³ − n)/6, dan rasio t/n³ dihitung: bila kompleksitasnya Θ(n³), rasio ini hampir konstan." },
+    { l: [116, 126], t: "Kurva c·n³ dan kemiringan log-log", d: "Konstanta c dicari dengan kuadrat terkecil, c = Σ t·n³ / Σ n⁶. Kemiringan garis pada skala log-log dihitung dengan <code>np.polyfit</code>; untuk Θ(n³) nilainya mendekati 3." },
+    { l: [128, 143], t: "Grafik eksperimen 1", d: "Dua panel: waktu terukur (dengan error bar SD) dan kurva teoretis c·n³ pada skala linear, lalu skala log-log. Disimpan sebagai <code>eksp1_waktu_dp.png</code>." },
+    { g: "Eksperimen 2 · DP vs brute force", l: [156, 160], t: "Verifikasi kebenaran", d: "Untuk setiap n kecil, biaya DP <code>m[1][n]</code> dibandingkan dengan brute force. <code>assert</code> menghentikan program bila keduanya berbeda; karena program selesai, hasil DP selalu sama dengan pencarian menyeluruh." },
+    { l: [162, 172], t: "Membandingkan waktu", d: "Waktu DP dan brute force diukur dengan alat yang sama, dicatat bersama banyak pengurungan C<sub>n−1</sub>, lalu disimpan ke CSV." },
+    { l: [174, 182], t: "Grafik eksperimen 2", d: "Sumbu y logaritmik: brute force tumbuh eksponensial (garis naik curam), DP tumbuh polinomial (garis hampir datar)." },
+    { g: "Eksperimen 3 · studi kasus NumPy", l: [188, 203], t: "Urutan naif sebagai pembanding", d: "Dua fungsi membuat tabel s untuk urutan kiri-ke-kanan (((A<sub>1</sub>A<sub>2</sub>)A<sub>3</sub>)…) dan kanan-ke-kiri A<sub>1</sub>(A<sub>2</sub>(…)), sehingga bisa diproses dengan cara yang sama seperti tabel s hasil DP." },
+    { l: [206, 219], t: "biaya_urutan dan kalikan", d: "<code>biaya_urutan</code> menghitung jumlah perkalian skalar sebuah pengurungan secara rekursif. <code>kalikan</code> benar-benar mengalikan matriks NumPy (operator <code>@</code>) mengikuti pengurungan pada tabel s." },
+    { l: [223, 233], t: "Tiga skenario", d: "MLP linear 784-512-256-128-10 dengan batch 1024, rantai tiga Jacobian 1500 × 1500 dikali vektor, dan rantai heterogen 8 matriks. Setiap skenario ditulis sebagai vektor dimensi p." },
+    { l: [236, 254], t: "Urutan pilihan numpy.multi_dot", d: "NumPy juga memakai DP matrix chain di dalam <code>multi_dot</code>. Fungsi internalnya diambil (lokasinya beda di NumPy 1.x dan 2.x) dan indeksnya diubah ke 1..n, agar urutan pustaka bisa dibandingkan dengan urutan DP kita." },
+    { l: [264, 280], t: "Menyiapkan tiap skenario", d: "Matriks acak dibuat sesuai p, lalu disusun empat urutan: kiri-ke-kanan, kanan-ke-kiri, optimal DP (tabel s dari tugas.py), dan NumPy multi_dot." },
+    { l: [282, 299], t: "Mengalikan dan mengukur", d: "Hasil urutan optimal dijadikan acuan. Setiap urutan dihitung biayanya, dikalikan sungguhan, diperiksa dengan <code>np.allclose</code> bahwa matriksnya sama, lalu diukur 20 kali setelah 3 pemanasan dan diambil mediannya." },
+    { l: [301, 316], t: "Membandingkan dengan optimal", d: "Mencetak apakah biaya urutan NumPy sama dengan optimal DP, lalu menyimpan rasio perkalian dan rasio waktu tiap urutan terhadap optimal ke <code>eksp3_studi_kasus.csv</code>." },
+    { l: [318, 335], t: "Grafik eksperimen 3", d: "Diagram batang berdampingan untuk empat urutan per skenario: jumlah perkalian (teori) dan median waktu (pengukuran), keduanya skala log." },
+    { g: "Program utama", l: [338, 343], t: "Menjalankan semua eksperimen", d: "Mencetak mode dan seed, menjalankan eksperimen 1, 2, dan 3 berurutan, lalu memberi tahu bahwa grafik dan CSV ada di folder <code>hasil/</code>." },
+  ];
+  const STEPS = { py: PY_STEPS, js: JS_STEPS, eks: EKS_STEPS };
+  const FNAME = { py: "tugas.py", js: "assets/algoritma.js", eks: "eksperiment.py" };
+  const START = { py: 2, js: 1, eks: 2 };
+
+  let lang = "py", active = 2;
+  const KW = { py: /\b(def|return|for|in|range|if|elif|else|try|except|import|from|lambda|assert|with|as|len|min|print|and|or|not|None|True|False)\b/g,
+               js: /\b(function|return|for|let|const|if|else|new|while|typeof|of|true|false|null|Infinity)\b/g };
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  function hl(line, lg) {
+    // pisahkan komentar dan string dulu agar kata kunci di dalamnya tidak diwarnai
+    const parts = []; let rest = line;
+    const re = lg === "py" ? /("""|f?"[^"]*"|#.*$)/ : /(\/\*.*|\/\/.*$|^\s*\*.*$|`[^`]*`|"[^"]*")/;
+    while (rest.length) {
+      const m = rest.match(re);
+      if (!m) { parts.push([rest, 0]); break; }
+      if (m.index) parts.push([rest.slice(0, m.index), 0]);
+      parts.push([m[0], m[0].startsWith("#") || m[0].startsWith("//") || m[0].trim().startsWith("*") || m[0].startsWith("/*") ? "cm" : "st"]);
+      rest = rest.slice(m.index + m[0].length);
+    }
+    return parts.map(([t, k]) => k ? `<span class="${k}">${esc(t)}</span>`
+      : esc(t).replace(KW[lg], '<span class="kw">$1</span>').replace(/\b(\d+)\b/g, '<span class="nu">$1</span>')
+             .replace(/\b(matrix_chain_order|print_parens|brute_force|eksperimen_1|eksperimen_2|eksperimen_3|ukur|kalikan|biaya_urutan|urutan_numpy|matrixChainOrder|printParens|bruteForce|memoized|greedy)\b/g, '<span class="fn">$1</span>')).join("");
+  }
+  function renderCode() {
+    let inDoc = false;
+    const lines = SRC[lang].replace(/\s+$/, "").split("\n");
+    $("#code").innerHTML = lines.map((ln, i) => {
+      let html;
+      if (lang !== "js" && (ln.trim().startsWith('"""') || inDoc)) {
+        const toggles = (ln.match(/"""/g) || []).length;
+        html = `<span class="st">${esc(ln)}</span>`;
+        if (toggles === 1) inDoc = !inDoc;
+      } else html = hl(ln, lang === "js" ? "js" : "py");
+      return `<div class="ln" data-n="${i + 1}"><span class="no">${i + 1}</span><span class="tx">${html || " "}</span></div>`;
+    }).join("");
+    $("#fname").textContent = FNAME[lang];
+  }
+  function renderSteps() {
+    const S = STEPS[lang];
+    $("#steps").innerHTML = S.map((s, i) => (s.g ? `<p class="group-title">${s.g}</p>` : "") +
+      `<button class="step" data-i="${i}" aria-pressed="${i === active}"><span class="lines">Baris ${s.l[0]}${s.l[1] !== s.l[0] ? "–" + s.l[1] : ""}</span><h3>${s.t}</h3><p>${s.d}</p></button>`).join("");
+  }
+  function focus(i, scroll = true) {
+    const S = STEPS[lang]; active = i;
+    const [a, b] = S[i].l;
+    document.querySelectorAll(".ln").forEach(el => { const n = +el.dataset.n; el.classList.toggle("hl", n >= a && n <= b); el.classList.toggle("dim", !(n >= a && n <= b)); });
+    document.querySelectorAll(".step").forEach(el => el.setAttribute("aria-pressed", +el.dataset.i === i));
+    if (scroll) { const first = $(`.ln[data-n="${a}"]`), box = $("#scroll");
+      if (first && box.scrollHeight > box.clientHeight) box.scrollTo({ top: first.offsetTop - 60, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
+  }
+  function setLang(lg) {
+    lang = lg; active = START[lg];
+    $("#tPy").setAttribute("aria-pressed", lg === "py");  $("#tEks").setAttribute("aria-pressed", lg === "eks");
+    renderCode(); renderSteps(); focus(active, false);
+  }
+  $("#tPy").onclick = () => setLang("py");
+  $("#tEks").onclick = () => setLang("eks");
+  $("#steps").addEventListener("click", e => { const b = e.target.closest(".step"); if (b) focus(+b.dataset.i); });
+  $("#showAll").onclick = () => document.querySelectorAll(".ln").forEach(el => el.classList.remove("hl", "dim"));
+  $("#copy").onclick = async () => {
+    try { await navigator.clipboard.writeText(SRC[lang]); $("#copy").textContent = "Tersalin"; }
+    catch (e) { const r = document.createRange(); r.selectNodeContents($("#code")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); $("#copy").textContent = "Tekan Ctrl+C"; }
+    setTimeout(() => $("#copy").textContent = "Salin kode", 1800);
+  };
+
+  /* menjalankan program inti */
+  function run() {
+    const p = $("#pin").value.split(/[\s,;]+/).filter(Boolean).map(Number);
+    if (p.length < 2 || p.length > 16 || p.some(x => !Number.isInteger(x) || x < 1)) { $("#err").textContent = "Masukkan 2 sampai 16 bilangan bulat positif."; return; }
+    $("#err").textContent = "";
+    const n = p.length - 1, r = A.matrixChainOrder(p), bf = n <= 13 ? A.bruteForce(p) : null;
+    const ok = !bf || bf.cost === r.cost;
+    $("#out").innerHTML = `<span class="${ok ? "ok" : ""}">[${ok ? "OK" : "BEDA"}]</span> Rantai ${n} matriks
+    p = [${p.join(", ")}]
+    biaya DP = ${r.cost}, brute force = ${bf ? bf.cost : "(dilewati, n > 13)"}
+    pengurungan optimal: ${n ? A.printParens(r.s, 1, n) : "A1"}
+    evaluasi q = ${fmt(r.evals)}  (rumus (n³ − n)/6 = ${fmt((n ** 3 - n) / 6)})${bf ? `\n    pemanggilan brute force = ${fmt(bf.evals)}  (3^(n−1) = ${fmt(3 ** (n - 1))})` : ""}`;
+    let rows = "", tot = 0;
+    for (let l = 2; l <= n; l++) { const c = (n - l + 1) * (l - 1); tot += c; rows += `<tr><td class="num">${l}</td><td class="num">${n - l + 1}</td><td class="num">${l - 1}</td><td class="num">${fmt(c)}</td></tr>`; }
+    $("#loopTbl").innerHTML = `<tr><th class="num">Panjang l</th><th class="num">Banyak i (n − l + 1)</th><th class="num">Banyak k (l − 1)</th><th class="num">Evaluasi</th></tr>${rows}
+      <tr class="best"><td colspan="3"><b>Total untuk n = ${n}</b></td><td class="num"><b>${fmt(tot)}</b> = (${n}³ − ${n})/6</td></tr>`;
+  }
+  $("#runBtn").onclick = run;
+  $("#pin").addEventListener("keydown", e => { if (e.key === "Enter") run(); });
+
+  setLang("py"); run();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Matrix Chain Multiplication</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/algoritma.js"></script>
+<script src="assets/mcm.js"></script>
+<style>
+.hero{padding-block:64px 40px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:48px;align-items:center}
+@media (max-width:900px){.hero{grid-template-columns:1fr;padding-block:40px 24px}}
+.hero h1 .hl{color:var(--accent)}
+.demo{display:grid;gap:18px}
+.demo .chainviz{min-height:120px;justify-content:center;gap:18px}
+.order-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.order-btns .btn{justify-content:center;font-family:var(--font-mono);font-size:1.05rem;padding:12px}
+.meter{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.meter .cell{background:var(--surface-2);border-radius:10px;padding:14px;display:grid;gap:4px}
+.meter .v{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+.meter .cell.win .v{color:var(--accent)} .meter .cell.lose .v{color:var(--warm)}
+.steps-log{font-family:var(--font-mono);font-size:.85rem;color:var(--muted);min-height:3.2em}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:28px;padding-block:36px;border-block:1px solid var(--line)}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:28px}
+.how .n{font-family:var(--font-mono);color:var(--accent);font-weight:600}
+.core{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:36px;align-items:center}
+@media (max-width:900px){.core{grid-template-columns:minmax(0,1fr)}}
+.core-list{margin:0;padding-left:1.1em;display:grid;gap:6px}
+</style>
+</head>
+<body data-page="beranda">
+<main class="wrap">
+  <section class="hero">
+    <div class="stack" style="gap:22px">
+      <p class="eyebrow">Analisis Algoritma Komputasi · Algoritma No. 15</p>
+      <h1>Hasilnya sama, biayanya bisa <span class="hl">ribuan kali</span> berbeda</h1>
+      <p class="lead">Matrix Chain Multiplication mencari cara mengurung rantai perkalian matriks agar jumlah perkalian skalarnya paling sedikit. Situs ini memperlihatkan algoritma pemrograman dinamisnya bekerja, menguji tiga studi kasus nyata, dan membandingkannya dengan algoritma lain.</p>
+      <div class="row"><a class="btn primary" href="visualisasi.html">Lihat algoritma bekerja</a><a class="btn" href="presentasi.html">Buka presentasi</a></div>
+    </div>
+    <div class="panel demo" aria-labelledby="demoTitle">
+      <div class="row" style="justify-content:space-between"><h3 id="demoTitle">Coba sendiri: tiga matriks</h3><span class="label">ukuran digambar sebanding</span></div>
+      <div class="chainviz" id="heroChain"></div>
+      <div class="order-btns">
+        <button class="btn" id="bAB">(AB)C</button>
+        <button class="btn" id="bBC">A(BC)</button>
+      </div>
+      <div class="meter">
+        <div class="cell" id="cAB"><span class="label">(AB)C</span><span class="v" id="vAB">?</span><span class="muted">perkalian skalar</span></div>
+        <div class="cell" id="cBC"><span class="label">A(BC)</span><span class="v" id="vBC">?</span><span class="muted">perkalian skalar</span></div>
+      </div>
+      <p class="steps-log" id="log" aria-live="polite">Pilih salah satu urutan untuk menghitung biayanya.</p>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="Ringkasan hasil">
+    <div class="stat"><span class="num blue">Θ(n³)</span><p>Kompleksitas waktu, tepat (n³ − n)/6 evaluasi pada semua kasus</p></div>
+    <div class="stat"><span class="num">3,114</span><p>Kemiringan log-log waktu terukur, teori: 3</p></div>
+    <div class="stat"><span class="num warm">9.467×</span><p>Brute force lebih lambat dari DP pada 15 matriks</p></div>
+    <div class="stat"><span class="num warm">83×</span><p>Waktu terbuang oleh urutan salah pada rantai Jacobian</p></div>
+  </section>
+
+  <section class="block" id="program-inti">
+    <div class="core">
+      <div class="stack" style="gap:14px">
+        <p class="eyebrow">Program inti · tugas.py</p>
+        <h2>Seluruh algoritmanya hanya 27 baris</h2>
+        <p class="lead">Fungsi <code>matrix_chain_order</code> mengisi tabel biaya m dan titik belah s dengan tiga loop bersarang. Berkas algoritmanya dipisah dari kode tampilan: <code>tugas.py</code> untuk Python dan <code>assets/algoritma.js</code> untuk situs ini.</p>
+        <ul class="core-list">
+          <li><b>Loop l</b> — panjang subrantai, dari pendek ke panjang</li>
+          <li><b>Loop i</b> — posisi awal, dengan j = i + l − 1</li>
+          <li><b>Loop k</b> — titik belah; q = kiri + kanan + <span style="color:var(--warm)">p[i−1]·p[k]·p[j]</span></li>
+        </ul>
+        <div class="row"><a class="btn primary" href="program.html">Baca penjelasan baris demi baris</a><a class="btn" href="program/tugas.py" download>Unduh tugas.py</a></div>
+      </div>
+      <pre class="code" aria-label="Kode matrix_chain_order dari tugas.py"><span class="k">def</span> matrix_chain_order(p):
+    &quot;&quot;&quot;Mengisi tabel m dan s secara bottom-up (berdasarkan panjang rantai).&quot;&quot;&quot;
+    n = len(p) - 1  <span class="c"># banyaknya matriks</span>
+
+    <span class="c"># Tabel berukuran (n+1) x (n+1) agar indeks 1..n sama dengan pseudocode;</span>
+    <span class="c"># baris/kolom 0 tidak dipakai.</span>
+    m = [[0] * (n + 1) <span class="k">for</span> _ <span class="k">in</span> <span class="k">range</span>(n + 1)]
+    s = [[0] * (n + 1) <span class="k">for</span> _ <span class="k">in</span> <span class="k">range</span>(n + 1)]
+
+    <span class="c"># Kasus dasar: m[i][i] = 0 (satu matriks tidak butuh perkalian).</span>
+    <span class="c"># Sudah terpenuhi karena tabel diinisialisasi dengan 0.</span>
+
+    <span class="c"># l = panjang rantai yang sedang dihitung, dari 2 sampai n</span>
+    <span class="k">for</span> l <span class="k">in</span> <span class="k">range</span>(2, n + 1):
+        <span class="c"># i = indeks awal rantai; rantai A_i..A_j dengan j = i + l - 1</span>
+        <span class="k">for</span> i <span class="k">in</span> <span class="k">range</span>(1, n - l + 2):
+            j = i + l - 1
+            m[i][j] = math.inf  <span class="c"># nilai awal: belum ada solusi</span>
+            <span class="c"># k = posisi belah: (A_i..A_k)(A_{k+1}..A_j)</span>
+            <span class="k">for</span> k <span class="k">in</span> <span class="k">range</span>(i, j):
+                <span class="c"># biaya = biaya kiri + biaya kanan + biaya mengalikan dua hasilnya</span>
+                <span class="c"># hasil kiri berukuran p[i-1] x p[k], hasil kanan p[k] x p[j]</span>
+                q = m[i][k] + m[k + 1][j] + <span class="w">p[i - 1] * p[k] * p[j]</span>
+                <span class="k">if</span> q &lt; m[i][j]:   <span class="c"># simpan jika lebih murah</span>
+                    m[i][j] = q
+                    s[i][j] = k
+    <span class="k">return</span> m, s</pre>
+    </div>
+  </section>
+
+  <section class="block stack" style="gap:24px">
+    <h2>Jelajahi</h2>
+    <div class="grid-2">
+      <a class="card-link" href="program.html"><span class="eyebrow">00 · Program inti</span><h3>Kode algoritma dan penjelasannya</h3><p class="muted">Kode tugas.py dan algoritma.js dengan sorotan baris dan penjelasan setiap bagian, plus tombol untuk menjalankannya.</p><span class="go">program.html →</span></a>
+      <a class="card-link" href="visualisasi.html"><span class="eyebrow">01 · Visualisasi</span><h3>Tabel DP terisi langkah demi langkah</h3><p class="muted">Putar, jeda, atau geser setiap evaluasi titik belah k, lalu lihat pohon pengurungan optimalnya.</p><span class="go">visualisasi.html →</span></a>
+      <a class="card-link" href="studi-kasus.html"><span class="eyebrow">02 · Studi kasus</span><h3>Tiga rantai matriks nyata</h3><p class="muted">Jaringan saraf MLP, rantai Jacobian × vektor, dan rantai heterogen, diukur dengan NumPy.</p><span class="go">studi-kasus.html →</span></a>
+      <a class="card-link" href="perbandingan.html"><span class="eyebrow">03 · Perbandingan</span><h3>DP melawan brute force, memoisasi, dan greedy</h3><p class="muted">Jalankan enam pendekatan langsung di peramban dan lihat siapa yang optimal dan siapa yang cepat.</p><span class="go">perbandingan.html →</span></a>
+      <a class="card-link" href="presentasi.html"><span class="eyebrow">04 · Presentasi</span><h3>Slide presentasi 15 menit</h3><p class="muted">Lima belas slide dengan catatan pembicara, bisa dibuka layar penuh dan dinavigasi dengan tombol panah.</p><span class="go">presentasi.html →</span></a>
+    </div>
+  </section>
+
+  <section class="block stack" style="gap:24px">
+    <h2>Cara kerja dalam tiga langkah</h2>
+    <div class="how">
+      <div class="stack" style="gap:8px"><span class="n">1 · Subproblem</span><h3>m[i, j] = biaya minimum Aᵢ…Aⱼ</h3><p>Rantai dipecah menjadi subrantai. Hanya ada n(n + 1)/2 subrantai berbeda, jadi setiap hasil cukup dihitung sekali dan disimpan.</p></div>
+      <div class="stack" style="gap:8px"><span class="n">2 · Pilih titik belah</span><h3>Coba semua k di antara i dan j</h3><p>Biaya = m[i, k] + m[k+1, j] + pᵢ₋₁·pₖ·pⱼ. Nilai terkecil disimpan, beserta k-nya di tabel s.</p></div>
+      <div class="stack" style="gap:8px"><span class="n">3 · Dari pendek ke panjang</span><h3>Isi tabel per panjang rantai</h3><p>Subrantai pendek selalu selesai lebih dulu, sehingga setiap nilai yang dibutuhkan sudah tersedia. Hasil akhir ada di m[1, n].</p></div>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+  const { $, fmt, chainViz } = MCM;
+  const p = [10, 100, 5, 50];
+  const draw = cls => chainViz($("#heroChain"), p, { min: 18, max: 100, cls });
+  draw();
+  const plans = {
+    AB: { steps: [[[1, 2], 10 * 100 * 5, "A·B: 10·100·5"], [[1, 2, 3], 10 * 5 * 50, "(AB)·C: 10·5·50"]], out: "#vAB", cell: "#cAB" },
+    BC: { steps: [[[2, 3], 100 * 5 * 50, "B·C: 100·5·50"], [[1, 2, 3], 10 * 100 * 50, "A·(BC): 10·100·50"]], out: "#vBC", cell: "#cBC" },
+  };
+  const done = {};
+  let busy = false;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function count(el, from, to, ms) {
+    return new Promise(res => {
+      if (reduce) { el.textContent = fmt(to); return res(); }
+      const t0 = performance.now();
+      (function tick(t) { const f = Math.min(1, (t - t0) / ms); el.textContent = fmt(Math.round(from + (to - from) * (1 - Math.pow(1 - f, 3)))); f < 1 ? requestAnimationFrame(tick) : res(); })(t0);
+    });
+  }
+  async function run(key) {
+    if (busy) return; busy = true;
+    const plan = plans[key]; let total = 0; const log = [];
+    for (const [idx, c, text] of plan.steps) {
+      draw(i => idx.includes(i) ? "hot" : "");
+      log.push(`${text} = ${fmt(c)}`); $("#log").textContent = log.join("  →  ");
+      await count($(plan.out), total, total + c, 700); total += c;
+      await new Promise(r => setTimeout(r, reduce ? 0 : 250));
+    }
+    draw(() => "done");
+    done[key] = total;
+    $("#log").textContent = log.join("  →  ") + `  ⇒  total ${fmt(total)}`;
+    if (done.AB && done.BC) {
+      $("#cAB").className = "cell win"; $("#cBC").className = "cell lose";
+      $("#log").textContent = `Hasilnya sama, tetapi A(BC) butuh ${fmt(done.BC / done.AB)}× lebih banyak perkalian daripada (AB)C.`;
+    }
+    busy = false;
+  }
+  $("#bAB").onclick = () => run("AB");
+  $("#bBC").onclick = () => run("BC");
+})();
+</script>
+</body>
+</html>

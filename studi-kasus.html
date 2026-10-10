@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studi Kasus MCM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/algoritma.js"></script>
+<script src="assets/mcm.js"></script>
+<style>
+.case-pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.case-pick button{all:unset;cursor:pointer;display:grid;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;transition:border-color .2s,box-shadow .2s}
+.case-pick button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.case-pick button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.case-pick .no{font-family:var(--font-mono);font-size:.8rem;color:var(--accent);font-weight:600}
+.case-pick h3{font-family:var(--font-display);font-size:1.45rem}
+.case-pick .big{font-family:var(--font-display);font-weight:700;font-size:2rem;color:var(--warm);line-height:1}
+.finding{font-family:var(--font-display);font-size:clamp(1.4rem,2.6vw,2rem);font-weight:700;color:var(--ink);line-height:1.2;text-wrap:balance}
+.finding em{font-style:normal;color:var(--warm)}
+.insight{border-left:3px solid var(--accent);padding:4px 0 4px 16px;color:var(--text)}
+</style>
+</head>
+<body data-page="studi-kasus">
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">02 · Studi kasus</p>
+    <h1>Tiga rantai matriks nyata</h1>
+    <p class="lead">Setiap rantai dikalikan sungguhan dengan NumPy dalam tiga urutan: kiri-ke-kanan, kanan-ke-kiri, dan urutan optimal hasil DP. Waktu diukur 20 kali setelah 3 run pemanasan, lalu diambil mediannya.</p>
+  </header>
+
+  <div class="case-pick" id="pick" role="group" aria-label="Pilih studi kasus"></div>
+
+  <section class="panel stack" id="detail" style="margin-top:20px;gap:22px" aria-live="polite"></section>
+
+  <section class="block stack">
+    <h2>Yang sama di ketiga kasus</h2>
+    <div class="grid-3">
+      <div class="stack" style="gap:6px"><h3>Hasil matriks identik</h3><p>Ketiga urutan menghasilkan matriks yang sama, diperiksa dengan <code>numpy.allclose</code>. Yang berbeda hanya biayanya.</p></div>
+      <div class="stack" style="gap:6px"><h3>Sama dengan pustaka</h3><p>Urutan pilihan <code>numpy.linalg.multi_dot</code> identik dengan hasil DP pada ketiga rantai.</p></div>
+      <div class="stack" style="gap:6px"><h3>Hemat waktu &lt; hemat perkalian</h3><p>BLAS lebih efisien pada matriks besar daripada matriks-vektor, sehingga rasio waktu selalu lebih kecil dari rasio perkalian.</p></div>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+  const { $, fmt, CASES, chainViz, bars } = MCM;
+  let cur = Math.max(0, CASES.findIndex(c => c.id === location.hash.slice(1)));
+  function worst(c) { const opt = c.rows.find(r => r.opt); const w = c.rows.reduce((a, b) => b.flop > a.flop ? b : a); return { opt, w, f: w.flop / opt.flop, t: w.ms / opt.ms }; }
+  function pick() {
+    $("#pick").innerHTML = CASES.map((c, i) => { const r = worst(c);
+      return `<button aria-pressed="${i === cur}" data-i="${i}"><span class="no">Kasus ${i + 1} · ${c.tag}</span><h3>${c.name}</h3>
+        <span class="big">${fmt(r.t, 1)}× lebih lambat</span><span class="muted">urutan terburuk dibanding optimal</span></button>`; }).join("");
+  }
+  function detail() {
+    const c = CASES[cur], r = worst(c);
+    $("#detail").innerHTML = `
+      <div class="row" style="justify-content:space-between;align-items:start">
+        <div class="stack" style="gap:6px"><span class="eyebrow">Kasus ${cur + 1} · ${c.tag}</span><h2>${c.name}</h2></div>
+        <a class="btn" href="visualisasi.html#${c.id}">Lihat pengisian tabelnya →</a>
+      </div>
+      <p class="finding">Urutan ${r.w.u.toLowerCase()} butuh <em>${fmt(r.f, 1)}×</em> perkalian dan <em>${fmt(r.t, 1)}×</em> waktu dibanding urutan optimal.</p>
+      <p style="max-width:75ch">${c.desc}</p>
+      <div><span class="label">Rantai matriks · ukuran sebanding (skala log)</span><div class="chainviz" id="cv"></div>
+        <p class="mono muted" style="font-size:.85rem">p = ⟨${c.p.join(", ")}⟩</p></div>
+      <div class="grid-2">
+        <div class="stack"><span class="label">Jumlah perkalian skalar (teori)</span><div class="bars" id="bf"></div></div>
+        <div class="stack"><span class="label">Waktu median NumPy (pengukuran)</span><div class="bars" id="bt"></div></div>
+      </div>
+      <p class="insight">${c.insight}</p>
+      <div class="tbl-wrap"><table class="data"><tr><th>Urutan</th><th>Pengurungan</th><th class="num">Perkalian skalar</th><th class="num">Median (ms)</th><th class="num">Relatif</th></tr>
+        ${c.rows.map(x => `<tr${x.opt ? ' class="best"' : ""}><td>${x.u}</td><td class="mono">${x.par}</td><td class="num">${fmt(x.flop)}</td><td class="num">${fmt(x.ms, 2)}</td><td class="num">${fmt(x.ms / r.opt.ms, 1)}×</td></tr>`).join("")}
+      </table></div>`;
+    chainViz($("#cv"), c.p, { min: 14, max: 96 });
+    bars($("#bf"), c.rows, "flop", "", 0);
+    bars($("#bt"), c.rows, "ms", " ms", 2);
+  }
+  function show(i) { cur = i; pick(); detail(); try { history.replaceState(null, "", "#" + CASES[i].id); } catch (e) {} }
+  $("#pick").addEventListener("click", e => { const b = e.target.closest("button"); if (b) show(+b.dataset.i); });
+  show(cur);
+})();
+</script>
+</body>
+</html>

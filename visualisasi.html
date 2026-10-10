@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visualisasi Tabel DP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/algoritma.js"></script>
+<script src="assets/mcm.js"></script>
+<style>
+.player{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.player input[type=range]{flex:1 1 200px;min-width:0;width:auto}
+.counter{font-family:var(--font-mono);font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.calc{font-family:var(--font-mono);font-size:.92rem;display:grid;gap:8px}
+.calc .line{overflow-x:auto;white-space:nowrap}
+.cL{color:var(--accent);font-weight:600}.cR{color:var(--warm);font-weight:600}
+table.dp{border-collapse:collapse;font-family:var(--font-mono);font-size:.8rem;font-variant-numeric:tabular-nums}
+table.dp th{color:var(--muted);font-weight:600;padding:4px 6px;font-size:.74rem}
+table.dp td{border:1px solid var(--line);min-width:62px;height:36px;text-align:right;padding:3px 7px;transition:background .2s}
+table.dp td.void{border-color:transparent}
+table.dp td.diag{color:var(--muted)}
+table.dp td.cur{outline:2px solid var(--ink);outline-offset:-2px;background:var(--good-soft);font-weight:600}
+table.dp td.opL{background:var(--accent-soft);color:var(--accent);font-weight:600}
+table.dp td.opR{background:var(--warm-soft);color:var(--warm);font-weight:600}
+table.dp td.final{background:var(--good-soft);color:var(--good);font-weight:700}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.84rem;color:var(--muted)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px;border:1px solid var(--line)}
+.tag{display:inline-block;font-family:var(--font-body);font-size:.75rem;font-weight:600;padding:2px 9px;border-radius:99px}
+.tag.new{background:var(--good-soft);color:var(--good)} .tag.no{background:var(--surface-2);color:var(--muted)}
+.tree-wrap{overflow-x:auto}
+.paren{font-family:var(--font-mono);font-size:1.15rem;font-weight:600;color:var(--ink);overflow-x:auto;white-space:nowrap}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets .btn{font-size:.82rem;padding:6px 10px}
+</style>
+</head>
+<body data-page="visualisasi">
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">01 · Visualisasi</p>
+    <h1>Tabel DP terisi langkah demi langkah</h1>
+    <p class="lead">Setiap langkah adalah satu evaluasi titik belah k. Sel hijau sedang dihitung, sel biru dan oranye adalah dua subrantai yang dipakai. Totalnya selalu (n³ − n)/6 evaluasi.</p>
+  </header>
+
+  <section class="panel stack" aria-labelledby="lblIn">
+    <div class="row" style="align-items:end">
+      <label class="field"><span class="label" id="lblIn">Vektor dimensi p (n + 1 angka, maksimal 11)</span>
+        <input type="text" id="dims" value="30, 35, 15, 5, 10, 20, 25" spellcheck="false"></label>
+      <button class="btn primary" id="apply">Hitung</button>
+    </div>
+    <div class="presets" id="presets"><span class="label" style="align-self:center">Contoh:</span></div>
+    <div class="err" id="err" role="alert"></div>
+    <div class="chainviz" id="chain"></div>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
+    <div class="player">
+      <button class="btn" id="reset" aria-label="Ke awal">⏮</button>
+      <button class="btn" id="prev" aria-label="Langkah sebelumnya">◀</button>
+      <button class="btn primary" id="play">Putar</button>
+      <button class="btn" id="next" aria-label="Langkah berikutnya">▶</button>
+      <button class="btn" id="end" aria-label="Ke akhir">⏭</button>
+      <select id="speed" aria-label="Kecepatan" style="width:auto"><option value="1300">Lambat</option><option value="650" selected>Sedang</option><option value="220">Cepat</option></select>
+      <input type="range" id="scrub" min="0" value="0" aria-label="Posisi langkah">
+      <span class="counter" id="counter"></span>
+    </div>
+  </section>
+
+  <section class="panel calc" id="calc" aria-live="polite" style="margin-top:16px"></section>
+
+  <div class="grid-2" style="margin-top:16px">
+    <section class="panel stack"><span class="label">Tabel m[i, j] · biaya minimum</span><div class="tbl-wrap"><table class="dp" id="tm"></table></div></section>
+    <section class="panel stack"><span class="label">Tabel s[i, j] · titik belah optimal k</span><div class="tbl-wrap"><table class="dp" id="ts"></table></div></section>
+  </div>
+  <div class="legend" style="margin-top:12px">
+    <span><i class="sw" style="background:var(--good-soft);outline:2px solid var(--ink)"></i>Sel yang sedang dihitung</span>
+    <span><i class="sw" style="background:var(--accent-soft)"></i>m[i, k], bagian kiri</span>
+    <span><i class="sw" style="background:var(--warm-soft)"></i>m[k+1, j], bagian kanan</span>
+  </div>
+
+  <section class="panel stack" id="result" style="margin-top:20px"></section>
+</main>
+<script>
+(() => {
+  const { $, fmt, chainViz, costBySplit, parensBySplit, splitLR, splitRL } = MCM;
+  const PRESETS = { clrs: ["CLRS 6 matriks", [30,35,15,5,10,20,25]], bab1: ["3 matriks", [10,100,5,50]],
+    mlp: ["MLP linear", [10,128,256,512,784,1024]], jacobian: ["Jacobian × vektor", [1500,1500,1500,1500,1]],
+    heterogen: ["Rantai heterogen", [766,257,1284,20,362,340,823,564,251]] };
+  let p = [], n = 0, steps = [], pos = 0, timer = null;
+  $("#presets").insertAdjacentHTML("beforeend", Object.entries(PRESETS).map(([k, [name]]) => `<button class="btn" data-k="${k}">${name}</button>`).join(""));
+
+  function parse(text) {
+    const nums = text.split(/[\s,;]+/).filter(Boolean).map(Number);
+    if (nums.length < 2) return "Masukkan minimal 2 angka (1 matriks).";
+    if (nums.length > 11) return "Maksimal 11 angka (10 matriks) agar tabel tetap terbaca.";
+    if (nums.some(x => !Number.isInteger(x) || x < 1)) return "Semua dimensi harus bilangan bulat positif.";
+    return nums;
+  }
+  function build() { steps = []; for (let l = 2; l <= n; l++) for (let i = 1; i <= n - l + 1; i++) { const j = i + l - 1; for (let k = i; k < j; k++) steps.push({ i, j, k }); } }
+  function stateAt(t) {
+    const m = Array.from({ length: n + 1 }, () => Array(n + 1).fill(null)), s = Array.from({ length: n + 1 }, () => Array(n + 1).fill(null));
+    for (let i = 1; i <= n; i++) m[i][i] = 0;
+    let info = null;
+    for (let x = 0; x < t; x++) {
+      const { i, j, k } = steps[x], prev = m[i][j], q = m[i][k] + m[k + 1][j] + p[i - 1] * p[k] * p[j], better = prev === null || q < prev;
+      if (better) { m[i][j] = q; s[i][j] = k; }
+      if (x === t - 1) info = { i, j, k, q, prev, better, left: m[i][k], right: m[k + 1][j] };
+    }
+    return { m, s, info };
+  }
+  function table(el, tab, info, isS, finished) {
+    let h = "<tr><th>i \\ j</th>" + Array.from({ length: n }, (_, x) => `<th>${x + 1}</th>`).join("") + "</tr>";
+    for (let i = 1; i <= n; i++) {
+      h += `<tr><th>${i}</th>`;
+      for (let j = 1; j <= n; j++) {
+        if (j < i || (isS && j === i)) { h += '<td class="void"></td>'; continue; }
+        const c = [];
+        if (i === j) c.push("diag");
+        if (info) { if (i === info.i && j === info.j) c.push("cur"); else if (!isS && i === info.i && j === info.k) c.push("opL"); else if (!isS && i === info.k + 1 && j === info.j) c.push("opR"); }
+        if (finished && i === 1 && j === n) c.push("final");
+        h += `<td class="${c.join(" ")}">${tab[i][j] === null ? "" : fmt(tab[i][j])}</td>`;
+      }
+      h += "</tr>";
+    }
+    el.innerHTML = h;
+  }
+  function calc(info) {
+    if (!info) { $("#calc").innerHTML = `<span class="label">Langkah</span><div>Kondisi awal: diagonal m[i, i] = 0. Tekan <b>Putar</b> atau <b>▶</b>. Ada ${fmt(steps.length)} evaluasi = (n³ − n)/6 dengan n = ${n}.</div>`; return; }
+    const { i, j, k, q, prev, better, left, right } = info;
+    $("#calc").innerHTML = `<span class="label">Panjang l = ${j - i + 1} · menghitung m[${i}, ${j}] dengan titik belah k = ${k}</span>
+      <div class="line">(A<sub>${i}</sub>…A<sub>${k}</sub>)(A<sub>${k + 1}</sub>…A<sub>${j}</sub>)</div>
+      <div class="line">q = <span class="cL">m[${i},${k}]</span> + <span class="cR">m[${k + 1},${j}]</span> + p<sub>${i - 1}</sub>·p<sub>${k}</sub>·p<sub>${j}</sub> = <span class="cL">${fmt(left)}</span> + <span class="cR">${fmt(right)}</span> + ${fmt(p[i - 1])}·${fmt(p[k])}·${fmt(p[j])} = <b>${fmt(q)}</b></div>
+      <div>${better ? `<span class="tag new">Minimum baru</span> m[${i}, ${j}] ← ${fmt(q)}, s[${i}, ${j}] ← ${k}${prev === null ? "" : ` (sebelumnya ${fmt(prev)})`}`
+                    : `<span class="tag no">Tidak lebih murah</span> ${fmt(q)} ≥ ${fmt(prev)}, m[${i}, ${j}] tetap`}</div>`;
+  }
+  function tree(s, m) {                      // pohon pengurungan dari tabel s
+    let leaf = 0; const nodes = [], edges = [];
+    function lay(i, j, d) {
+      if (i === j) { const nd = { x: leaf++, d, label: `A${i}`, leaf: true }; nodes.push(nd); return nd; }
+      const k = s[i][j], L = lay(i, k, d + 1), R = lay(k + 1, j, d + 1);
+      const nd = { x: (L.x + R.x) / 2, d, label: fmt(m[i][j]), dims: `${fmt(p[i - 1])}×${fmt(p[j])}` };
+      nodes.push(nd); edges.push([nd, L], [nd, R]); return nd;
+    }
+    lay(1, n, 0);
+    const depth = Math.max(...nodes.map(v => v.d)), W = Math.max(520, n * 92), H = (depth + 1) * 78 + 30;
+    const X = v => 46 + v.x * (W - 92) / Math.max(1, n - 1), Y = v => 30 + v.d * 78;
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Pohon pengurungan optimal">
+      ${edges.map(([a, b]) => `<line x1="${X(a)}" y1="${Y(a)}" x2="${X(b)}" y2="${Y(b)}" stroke="var(--line)" stroke-width="2"/>`).join("")}
+      ${nodes.map(v => v.leaf
+        ? `<g><rect x="${X(v) - 24}" y="${Y(v) - 16}" width="48" height="32" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="${X(v)}" y="${Y(v) + 5}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" fill="var(--ink)">${v.label}</text></g>`
+        : `<g><circle cx="${X(v)}" cy="${Y(v)}" r="7" fill="var(--ink)"/><text x="${X(v) + 12}" y="${Y(v) - 6}" font-family="JetBrains Mono, monospace" font-size="12" fill="var(--ink)">${v.label}</text><text x="${X(v) + 12}" y="${Y(v) + 10}" font-family="JetBrains Mono, monospace" font-size="11" fill="var(--muted)">${v.dims}</text></g>`).join("")}
+    </svg>`;
+  }
+  function result(st, finished) {
+    if (!finished) { $("#result").innerHTML = `<span class="label">Hasil</span><p class="muted">Pengurungan optimal dan pohonnya muncul setelah m[1, ${n}] terisi pada langkah terakhir. Tekan ⏭ untuk langsung melihatnya.</p>`; return; }
+    if (n === 1) { $("#result").innerHTML = `<span class="label">Hasil</span><p class="paren">A1</p><p class="muted">Satu matriks tidak membutuhkan perkalian.</p>`; return; }
+    const opt = st.m[1][n], lr = costBySplit(p, splitLR(n), 1, n), rl = costBySplit(p, splitRL(n), 1, n);
+    const sp = (a, b) => st.s[a][b];
+    $("#result").innerHTML = `<span class="label">Hasil · pengurungan optimal</span>
+      <p class="paren">${parensBySplit(sp, 1, n)}</p>
+      <div class="grid-3">
+        <div class="stat"><span class="num blue">${fmt(opt)}</span><p>Optimal (DP), perkalian skalar</p></div>
+        <div class="stat"><span class="num">${fmt(lr)}</span><p>Kiri-ke-kanan · ${opt ? fmt(lr / opt, 1) : "—"}× optimal</p></div>
+        <div class="stat"><span class="num">${fmt(rl)}</span><p>Kanan-ke-kiri · ${opt ? fmt(rl / opt, 1) : "—"}× optimal</p></div>
+      </div>
+      <span class="label">Pohon pengurungan · angka = biaya subrantai, di bawahnya ukuran hasil</span>
+      <div class="tree-wrap">${tree(st.s, st.m)}</div>`;
+  }
+  function render() {
+    const st = stateAt(pos), finished = pos === steps.length, info = st.info;
+    chainViz($("#chain"), p, { cls: i => (info && i > info.k && i <= info.j) ? "hot" : "" });
+    if (info) $("#chain").querySelectorAll(".box").forEach((b, x) => { const i = x + 1; b.style.opacity = (i < info.i || i > info.j) ? .35 : 1; });
+    table($("#tm"), st.m, info, false, finished); table($("#ts"), st.s, info, true, finished);
+    calc(info); result(st, finished);
+    $("#scrub").max = steps.length; $("#scrub").value = pos; $("#counter").textContent = `Evaluasi ${pos} / ${steps.length}`;
+  }
+  function stop() { clearInterval(timer); timer = null; $("#play").textContent = "Putar"; }
+  function play() { if (pos >= steps.length) pos = 0; $("#play").textContent = "Jeda"; timer = setInterval(() => { if (pos < steps.length) { pos++; render(); } if (pos >= steps.length) stop(); }, +$("#speed").value); }
+  function load(text, at) { const r = parse(text); if (typeof r === "string") { $("#err").textContent = r; return; } $("#err").textContent = ""; stop(); p = r; n = p.length - 1; build(); pos = at === "end" ? steps.length : Math.min(at || 0, steps.length); render(); }
+
+  $("#apply").onclick = () => load($("#dims").value);
+  $("#dims").addEventListener("keydown", e => { if (e.key === "Enter") load($("#dims").value); });
+  $("#presets").addEventListener("click", e => { const k = e.target.dataset && e.target.dataset.k; if (!k) return; $("#dims").value = PRESETS[k][1].join(", "); load($("#dims").value); });
+  $("#play").onclick = () => timer ? stop() : play();
+  $("#next").onclick = () => { stop(); if (pos < steps.length) { pos++; render(); } };
+  $("#prev").onclick = () => { stop(); if (pos > 0) { pos--; render(); } };
+  $("#reset").onclick = () => { stop(); pos = 0; render(); };
+  $("#end").onclick = () => { stop(); pos = steps.length; render(); };
+  $("#scrub").oninput = e => { stop(); pos = +e.target.value; render(); };
+  $("#speed").onchange = () => { if (timer) { stop(); play(); } };
+  document.addEventListener("keydown", e => { if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return; if (e.key === "ArrowRight") $("#next").click(); if (e.key === "ArrowLeft") $("#prev").click(); if (e.key === " ") { e.preventDefault(); $("#play").click(); } });
+
+  const hash = location.hash.slice(1);
+  if (PRESETS[hash]) { $("#dims").value = PRESETS[hash][1].join(", "); load($("#dims").value, "end"); }
+  else load($("#dims").value, 12);
+})();
+</script>
+</body>
+</html>
