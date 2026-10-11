@@ -1,10 +1,13 @@
-skenario,urutan,pengurungan,perkalian_skalar,rasio_perkalian_vs_optimal,rata2_detik,SD,rasio_waktu_vs_optimal
-"MLP linear 784-512-256-128-10, batch 1024",Kiri-ke-kanan,((((A1A2)A3)A4)A5),13680640,1.00,0.000983,0.000062,1.07
-"MLP linear 784-512-256-128-10, batch 1024",Kanan-ke-kiri,(A1(A2(A3(A4A5)))),580124672,42.40,0.010074,0.001520,10.94
-"MLP linear 784-512-256-128-10, batch 1024",Optimal (DP),((((A1A2)A3)A4)A5),13680640,1.00,0.000921,0.000041,1.00
-Rantai Jacobian x vektor (forward-mode),Kiri-ke-kanan,(((A1A2)A3)A4),6752250000,1000.33,0.100342,0.001861,94.98
-Rantai Jacobian x vektor (forward-mode),Kanan-ke-kiri,(A1(A2(A3A4))),6750000,1.00,0.001271,0.000382,1.20
-Rantai Jacobian x vektor (forward-mode),Optimal (DP),(A1(A2(A3A4))),6750000,1.00,0.001056,0.000018,1.00
-Rantai heterogen 8 matriks,Kiri-ke-kanan,(((((((A1A2)A3)A4)A5)A6)A7)A8),1050602704,30.40,0.025956,0.005717,19.40
-Rantai heterogen 8 matriks,Kanan-ke-kiri,(A1(A2(A3(A4(A5(A6(A7A8))))))),358137342,10.36,0.006793,0.000133,5.08
-Rantai heterogen 8 matriks,Optimal (DP),((A1(A2A3))((((A4A5)A6)A7)A8)),34555040,1.00,0.001338,0.000017,1.00
+skenario,urutan,pengurungan,perkalian_skalar,rasio_perkalian_vs_optimal,median_detik,rata2_detik,SD,rasio_median_vs_optimal
+"MLP linear 784-512-256-128-10, batch 1024",Kiri-ke-kanan,((((A1A2)A3)A4)A5),171008,1.00,0.000097,0.000104,0.000025,1.01
+"MLP linear 784-512-256-128-10, batch 1024",Kanan-ke-kiri,(A1(A2(A3(A4A5)))),9060352,52.98,0.000568,0.000564,0.000027,5.91
+"MLP linear 784-512-256-128-10, batch 1024",Optimal (DP),((((A1A2)A3)A4)A5),171008,1.00,0.000096,0.000097,0.000005,1.00
+"MLP linear 784-512-256-128-10, batch 1024",NumPy multi_dot,((((A1A2)A3)A4)A5),171008,1.00,0.000137,0.000151,0.000031,1.42
+Rantai Jacobian x vektor (forward-mode),Kiri-ke-kanan,(((A1A2)A3)A4),105609375,250.33,0.004654,0.005300,0.001153,56.04
+Rantai Jacobian x vektor (forward-mode),Kanan-ke-kiri,(A1(A2(A3A4))),421875,1.00,0.000083,0.000105,0.000040,1.00
+Rantai Jacobian x vektor (forward-mode),Optimal (DP),(A1(A2(A3A4))),421875,1.00,0.000083,0.000085,0.000008,1.00
+Rantai Jacobian x vektor (forward-mode),NumPy multi_dot,(A1(A2(A3A4))),421875,1.00,0.000242,0.000252,0.000058,2.91
+Rantai heterogen 8 matriks,Kiri-ke-kanan,(((((((A1A2)A3)A4)A5)A6)A7)A8),16296311,30.37,0.001235,0.001373,0.000360,7.52
+Rantai heterogen 8 matriks,Kanan-ke-kiri,(A1(A2(A3(A4(A5(A6(A7A8))))))),5505786,10.26,0.000571,0.000634,0.000135,3.48
+Rantai heterogen 8 matriks,Optimal (DP),((A1(A2A3))((((A4A5)A6)A7)A8)),536660,1.00,0.000164,0.000169,0.000022,1.00
+Rantai heterogen 8 matriks,NumPy multi_dot,((A1(A2A3))((((A4A5)A6)A7)A8)),536660,1.00,0.000285,0.000348,0.000153,1.74
