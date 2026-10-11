@@ -40,7 +40,7 @@
     const foot = document.createElement("footer");
     foot.className = "site-footer";
     foot.innerHTML = `<div class="wrap row"><span>Sandi Mukti Lahambu · D082261025 · Magister Teknik Informatika, Universitas Hasanuddin</span>
-      <span><a href="https://github.com/SandiMukti/mcm-analisis">Kode di GitHub</a> · Tugas Analisis Algoritma Komputasi, Algoritma No. 15</span></div>`;
+      <span><a href="https://github.com/SandiMukti/matrix-chain-multiplication">Kode di GitHub</a> · Tugas Analisis Algoritma Komputasi, Algoritma No. 15</span></div>`;
     document.body.append(foot);
   }
 
@@ -52,33 +52,33 @@
   function rng(seed) { let x = seed >>> 0 || 1; return () => { x ^= x << 13; x >>>= 0; x ^= x >> 17; x ^= x << 5; x >>>= 0; return x / 4294967296; }; }
 
   /* ---------------- data hasil eksperimen (laptop penulis) ---------------- */
-  const EXP1 = [{ n: 50, t: 0.0060, sd: 0.0002 }, { n: 100, t: 0.0452, sd: 0.0040 }, { n: 200, t: 0.3697, sd: 0.0459 },
-                { n: 400, t: 3.5573, sd: 0.4133 }, { n: 800, t: 32.9113, sd: 1.2913 }];
-  const EXP2 = [[2,.007,.004],[3,.009,.006],[4,.013,.017],[5,.019,.030],[6,.030,.089],[7,.031,.339],[8,.044,.879],
-                [9,.060,2.567],[10,.102,9.650],[11,.097,25.501],[12,.113,67.898],[13,.134,215.600],[14,.170,632.552],[15,.196,1855.483]]
+  const EXP1 = [{ n: 50, t: 0.0057, sd: 0.0002 }, { n: 100, t: 0.0436, sd: 0.0012 }, { n: 200, t: 0.3449, sd: 0.0129 },
+                { n: 400, t: 3.1829, sd: 0.1635 }, { n: 800, t: 33.9035, sd: 2.7034 }];
+  const EXP2 = [[2,.004,.003],[3,.010,.005],[4,.014,.014],[5,.019,.043],[6,.031,.127],[7,.031,.323],[8,.046,.831],
+                [9,.056,2.508],[10,.070,7.475],[11,.094,28.610],[12,.177,69.645],[13,.143,216.114],[14,.208,641.469],[15,.221,2031.797]]
                .map(([n, dp, bf]) => ({ n, dp, bf }));
   const CASES = [
     { id: "mlp", name: "MLP linear", p: [10, 128, 256, 512, 784, 1024],
       tag: "Jaringan saraf",
       desc: "Matriks bobot jaringan saraf 784–512–256–128–10 (W₄W₃W₂W₁) dikalikan dengan batch 1.024 data X. Urutan alami jaringan saraf adalah menerapkan layer satu per satu ke data, yaitu kanan-ke-kiri.",
-      insight: "Karena keluaran jaringan hanya berdimensi 10, menggabungkan bobot dari kiri jauh lebih murah. Urutan yang terasa alami justru 42 kali lebih banyak perkaliannya.",
-      rows: [{ u: "Kiri-ke-kanan", par: "((((A1A2)A3)A4)A5)", flop: 13680640, ms: 1.39 },
-             { u: "Kanan-ke-kiri", par: "(A1(A2(A3(A4A5))))", flop: 580124672, ms: 22.94 },
-             { u: "Optimal (DP)", par: "((((A1A2)A3)A4)A5)", flop: 13680640, ms: 1.49, opt: true }] },
+      insight: "Karena keluaran jaringan hanya berdimensi 10, menggabungkan bobot dari kiri jauh lebih murah. Urutan yang terasa alami justru 42 kali lebih banyak perkaliannya. Catatan: pada run ini pengukuran baris Optimal sempat terganggu (4,51 ms), padahal pengurungan yang sama terukur 1,40 ms sebagai kiri-ke-kanan.",
+      rows: [{ u: "Kiri-ke-kanan", par: "((((A1A2)A3)A4)A5)", flop: 13680640, ms: 1.40 },
+             { u: "Kanan-ke-kiri", par: "(A1(A2(A3(A4A5))))", flop: 580124672, ms: 31.38 },
+             { u: "Optimal (DP)", par: "((((A1A2)A3)A4)A5)", flop: 13680640, ms: 4.51, opt: true }] },
     { id: "jacobian", name: "Jacobian × vektor", p: [1500, 1500, 1500, 1500, 1],
       tag: "Automatic differentiation",
       desc: "Tiga matriks Jacobian 1.500 × 1.500 dikalikan dengan sebuah vektor, seperti pada automatic differentiation. Urutan kiri-ke-kanan setara forward mode, kanan-ke-kiri setara reverse mode.",
-      insight: "Mengalikan dari kanan menjaga setiap hasil antara tetap berupa vektor. Perkalian berkurang 1.000 kali, tetapi waktu hanya 83 kali, karena BLAS lebih efisien pada matriks besar daripada matriks-vektor.",
-      rows: [{ u: "Kiri-ke-kanan", par: "(((A1A2)A3)A4)", flop: 6752250000, ms: 227.61 },
-             { u: "Kanan-ke-kiri", par: "(A1(A2(A3A4)))", flop: 6750000, ms: 2.70 },
-             { u: "Optimal (DP)", par: "(A1(A2(A3A4)))", flop: 6750000, ms: 2.75, opt: true }] },
+      insight: "Mengalikan dari kanan menjaga setiap hasil antara tetap berupa vektor. Perkalian berkurang 1.000 kali, tetapi waktu hanya 94 kali, karena BLAS lebih efisien pada matriks besar daripada matriks-vektor.",
+      rows: [{ u: "Kiri-ke-kanan", par: "(((A1A2)A3)A4)", flop: 6752250000, ms: 225.13 },
+             { u: "Kanan-ke-kiri", par: "(A1(A2(A3A4)))", flop: 6750000, ms: 2.52 },
+             { u: "Optimal (DP)", par: "(A1(A2(A3A4)))", flop: 6750000, ms: 2.40, opt: true }] },
     { id: "heterogen", name: "Rantai heterogen", p: [766, 257, 1284, 20, 362, 340, 823, 564, 251],
       tag: "Dimensi bervariasi",
       desc: "Delapan matriks dengan dimensi bervariasi. Dimensinya dipilih agar urutan optimal berbeda dari kedua urutan naif.",
       insight: "Tidak ada urutan naif yang mendekati optimal. DP menemukan pengurungan campuran yang memanfaatkan dimensi kecil 20 di tengah rantai.",
-      rows: [{ u: "Kiri-ke-kanan", par: "(((((((A1A2)A3)A4)A5)A6)A7)A8)", flop: 1050602704, ms: 43.01 },
-             { u: "Kanan-ke-kiri", par: "(A1(A2(A3(A4(A5(A6(A7A8)))))))", flop: 358137342, ms: 15.56 },
-             { u: "Optimal (DP)", par: "((A1(A2A3))((((A4A5)A6)A7)A8))", flop: 34555040, ms: 3.52, opt: true }] },
+      rows: [{ u: "Kiri-ke-kanan", par: "(((((((A1A2)A3)A4)A5)A6)A7)A8)", flop: 1050602704, ms: 44.58 },
+             { u: "Kanan-ke-kiri", par: "(A1(A2(A3(A4(A5(A6(A7A8)))))))", flop: 358137342, ms: 15.85 },
+             { u: "Optimal (DP)", par: "((A1(A2A3))((((A4A5)A6)A7)A8))", flop: 34555040, ms: 2.98, opt: true }] },
   ];
 
   /* ---------------- komponen ---------------- */

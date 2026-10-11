@@ -8,12 +8,11 @@ Situs: https://sandimukti.github.io/matrix-chain-multiplication/
 
 | Berkas | Isi |
 | --- | --- |
-| `tugas.py` | Inti algoritma: `matrix_chain_order` (DP bottom-up), `print_parens`, `brute_force`, dan empat kasus uji |
-| `eksperiment.py` | Tiga eksperimen: waktu DP vs n, DP vs brute force, studi kasus NumPy (termasuk pembanding `numpy.linalg.multi_dot`) |
-| `hasil/` | Grafik PNG dan tabel CSV hasil eksperimen |
+| `program/tugas.py` | Inti algoritma: `matrix_chain_order` (DP bottom-up), `print_parens`, `brute_force`, dan empat kasus uji |
+| `program/eksperiment.py` | Tiga eksperimen: waktu DP vs n, DP vs brute force, studi kasus NumPy (termasuk pembanding `numpy.linalg.multi_dot`) |
+| `program/hasil/` | Grafik PNG dan tabel CSV hasil eksperimen (dibuat oleh `eksperiment.py`) |
 | `index.html` | Beranda situs, termasuk cuplikan program inti |
-| `program.html` | Kode `tugas.py` dan `assets/algoritma.js` dengan penjelasan baris demi baris |
-| `program/` | Salinan `tugas.py` dan `eksperiment.py` yang bisa diunduh dari situs |
+| `program.html` | Kode `tugas.py`, `assets/algoritma.js`, dan `eksperiment.py` dengan penjelasan baris demi baris |
 | `assets/algoritma.js` | Algoritma utama versi JavaScript (terpisah dari kode tampilan) |
 | `visualisasi.html` | Animasi pengisian tabel DP m[i, j] dan s[i, j] serta pohon pengurungan |
 | `studi-kasus.html` | Tiga studi kasus: MLP linear, Jacobian × vektor, rantai heterogen |
@@ -30,8 +29,10 @@ Situs: https://sandimukti.github.io/matrix-chain-multiplication/
 ## Cara menjalankan
 
 ```
+cd program
 python tugas.py            # kasus uji kebenaran
 python eksperiment.py      # eksperimen lengkap, sekitar 3–5 menit
+cd ..
 python -m http.server 8000 # lalu buka http://localhost:8000/
 ```
 
