@@ -13,7 +13,6 @@ Situs: https://sandimukti.github.io/matrix-chain-multiplication/
 | `program/hasil/` | Grafik PNG dan tabel CSV hasil eksperimen (dibuat oleh `eksperiment.py`) |
 | `index.html` | Beranda situs, termasuk cuplikan program inti |
 | `program.html` | Kode `tugas.py`, `assets/algoritma.js`, dan `eksperiment.py` dengan penjelasan baris demi baris |
-| `assets/algoritma.js` | Algoritma utama versi JavaScript (terpisah dari kode tampilan) |
 | `visualisasi.html` | Animasi pengisian tabel DP m[i, j] dan s[i, j] serta pohon pengurungan |
 | `studi-kasus.html` | Tiga studi kasus: MLP linear, Jacobian × vektor, rantai heterogen |
 | `perbandingan.html` | DP bottom-up vs memoisasi, brute force, greedy, dan urutan naif, dijalankan di peramban |
